@@ -1,8 +1,26 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { generateObject } from "ai";
+import { generateText } from "ai";
 import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+
+function extractJSON(raw: string): unknown {
+  let cleaned = raw
+    .replace(/^```json\s*/im, "")
+    .replace(/^```\s*/im, "")
+    .replace(/```\s*$/im, "")
+    .trim();
+  if (!cleaned.startsWith("{") && !cleaned.startsWith("[")) {
+    const objStart = cleaned.indexOf("{");
+    const arrStart = cleaned.indexOf("[");
+    const isArray = arrStart !== -1 && (objStart === -1 || arrStart < objStart);
+    const start = isArray ? arrStart : objStart;
+    const end = isArray ? cleaned.lastIndexOf("]") : cleaned.lastIndexOf("}");
+    if (start === -1 || end <= start) throw new Error("Resposta da IA sem JSON");
+    cleaned = cleaned.slice(start, end + 1);
+  }
+  return JSON.parse(cleaned);
+}
 
 const RecommendationSchema = z.object({
   recommendations: z.array(
@@ -64,13 +82,12 @@ Regras importantes:
 3. Cada \`search_query\` precisa ser específica (matéria + tópico exato), não genérica. Ex: "função quadrática vértice bhaskara aula" — não apenas "matemática".
 4. Distribua entre as matérias do aluno, dando mais peso para as de maior dificuldade.
 5. Misture introdução, aprofundamento e revisão.
-6. Para cada item, preencha TODOS os campos: title, subject, level ("fundamental" | "medio" | "superior"), description, reason, search_query, channel_hint, duration_hint (ex: "10-15 min").`;
+6. Para cada item, preencha TODOS os campos: title, subject, level ("fundamental" | "medio" | "superior"), description, reason, search_query, channel_hint, duration_hint (ex: "10-15 min").
+7. Responda APENAS com JSON válido, sem markdown, no formato: {"recommendations": [ { "title": "...", "subject": "...", "level": "medio", "description": "...", "reason": "...", "search_query": "...", "channel_hint": "...", "duration_hint": "..." } ] }`;
 
-    const { object } = await generateObject({
-      model,
-      schema: RecommendationSchema,
-      prompt,
-    });
+    const { text } = await generateText({ model, prompt });
+    const parsed = extractJSON(text);
+    const object = RecommendationSchema.parse(parsed);
 
     // Replace existing recommendations
     await supabase.from("video_recommendations").delete().eq("user_id", userId);
