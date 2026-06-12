@@ -1,52 +1,51 @@
-# MVP Study — Plataforma de estudos com IA
+## 1. Links do YouTube que não abrem
 
-Vou construir o MVP em **uma sequência grande**, ativando Lovable Cloud (auth + banco) e Lovable AI (tutora). Para entregar com qualidade, divido em 3 entregas dentro deste MVP. Confirma e eu começo pela Entrega 1.
+Hoje o card aponta para `youtube.com/results?search_query=...` — uma página de busca, não um vídeo. Além disso, dentro do preview em iframe, `target="_blank"` às vezes é bloqueado.
 
-## Entrega 1 — Fundação (auth + onboarding + dashboard básico)
+**Solução:**
+- Criar `resolveYoutubeVideo` (server function) que, recebendo `search_query + channel_hint`, faz fetch em `https://www.youtube.com/results?...`, extrai o primeiro `videoId` via regex e devolve `{ videoId, title }`. Sem precisar de YouTube API key.
+- Adicionar coluna `video_id` em `video_recommendations` (migration).
+- Ao gerar recomendações, resolver os IDs em paralelo e salvar.
+- No card: trocar o `<a>` por um botão que faz `window.open('https://youtu.be/<id>', '_blank', 'noopener')` — funciona dentro do iframe do preview. Mostrar também a thumbnail (`https://i.ytimg.com/vi/<id>/hqdefault.jpg`).
+- Para recomendações antigas sem `video_id`, resolver on-demand no clique.
 
-**Backend (Lovable Cloud)**
-- Tabelas: `profiles`, `onboarding` (objetivo, prazo, horas/dia, dias da semana, dificuldades, estilo), `subjects`, `study_sessions`, `goals`, `achievements`, `user_xp`, `chat_threads`, `chat_messages`.
-- RLS scopada por `auth.uid()` em todas. Trigger cria `profile` no signup.
+## 2. Calendário de estudos diário com IA
 
-**Auth**
-- `/auth` (email/senha + Google) usando broker Lovable.
-- Layout `_authenticated/` (já gerenciado).
-- Após login: se onboarding incompleto → `/onboarding`, senão `/dashboard`.
+Já existe a tabela `schedule_tasks`. Falta a página, a geração diária por IA e o "nunca acaba".
 
-**Onboarding (`/onboarding`)**
-- Wizard multi-step (objetivo, data prova, horas/dia, dias, matérias e dificuldades, estilo).
-- Salva em `onboarding` + cria registros em `subjects`.
+**Backend**
+- Server function `generateDailyPlan({ date })`:
+  - Lê `onboarding` (objetivo, horas/dia, estilo), `subjects` (com dificuldade), `goals` ativas, últimos 7 dias de `study_sessions` (matérias menos vistas → prioridade).
+  - Chama Gemini 3 Flash via gateway pedindo 2–5 blocos para o dia (matéria, tópico, duração em min, descrição curta, justificativa). JSON via `generateText` + `extractJSON` (mesmo padrão do `video-recs.functions.ts` que funcionou).
+  - Insere em `schedule_tasks` com `scheduled_date = date`, sem duplicar (se o dia já tem tarefas geradas pela IA, pula).
+- Server function `ensureUpcomingPlan({ days = 7 })`: chamada pelo cliente quando entra na página — gera o que faltar dos próximos N dias.
+- Server route pública `POST /api/public/hooks/generate-daily-plans`:
+  - Roda diariamente via `pg_cron + pg_net`, autenticada com `apikey` (anon).
+  - Para cada usuário ativo (com onboarding feito), gera plano para `hoje + 7` se faltar. Assim a esteira nunca acaba.
+- Migration: adicionar `source text default 'ai'` e `ai_reason text` em `schedule_tasks` para distinguir blocos gerados por IA e mostrar o "por quê". Garantir GRANT/RLS já existentes.
 
-**Dashboard (`/dashboard`)**
-- Saudação + resumo do dia, próximas tarefas, barra de progresso, metas, streak, XP.
-- Cronograma da semana gerado a partir das respostas do onboarding (algoritmo simples no server: distribui horas pelas matérias priorizando dificuldades + repetição espaçada básica).
-- Botão "marcar como concluído" → cria `study_session` → atualiza XP/streak.
+**Frontend — `/calendario`**
+- Header padrão `AppHeader`.
+- Visão semanal (7 colunas) + seletor para mês. Card por dia mostra blocos: matéria, tópico, duração, status (check / pular).
+- Ações: marcar concluído (escreve em `study_sessions` e dispara achievement check), pular, regenerar dia (chama `generateDailyPlan` forçando refresh do dia).
+- Ao montar: chama `ensureUpcomingPlan({ days: 7 })` para garantir que o usuário sempre vê a semana à frente.
+- Estado vazio: CTA "Gerar minha semana com IA".
+- Link no `AppHeader` para `/calendario`.
 
-**Landing** — manter a atual, ajustar CTAs para `/auth`.
+## Arquivos
 
-## Entrega 2 — IA tutora com histórico
+- `supabase/migrations/<ts>_calendar_videoid.sql` — adiciona `video_id` em `video_recommendations`, `source` e `ai_reason` em `schedule_tasks`.
+- `src/lib/youtube.functions.ts` — `resolveYoutubeVideo`.
+- `src/lib/calendar.functions.ts` — `generateDailyPlan`, `ensureUpcomingPlan`, `regenerateDay`.
+- `src/lib/video-recs.functions.ts` — resolve `video_id` ao gerar.
+- `src/routes/_authenticated/videoaulas.tsx` — usa `video_id`, `window.open`, thumbnail.
+- `src/routes/_authenticated/calendario.tsx` — nova página.
+- `src/routes/api/public/hooks/generate-daily-plans.ts` — endpoint cron.
+- `src/components/AppHeader.tsx` — adiciona "Calendário".
+- SQL `cron.schedule` (via insert tool, não migration) para rodar diariamente às 03:00.
 
-- Página `/tutor` com lista de threads (sidebar) + chat por thread (`/tutor/$threadId`).
-- Server route `/api/chat` usando AI SDK + Lovable AI Gateway (`google/gemini-3-flash-preview`).
-- Persistência em `chat_threads` / `chat_messages` (RLS por user).
-- System prompt: tutora amigável, didática, pt-BR, focada em estudo do teen, conhece contexto do user (matérias com dificuldade).
-- Renderização com `message.parts` + markdown.
-- Botão "explica isso" / "gera exercícios" / "resume" como prompts rápidos.
+## Pontos de atenção
 
-## Entrega 3 — Gamificação + biblioteca
-
-- Sistema de XP/níveis, streaks, conquistas (1ª semana, 30 dias, 100h, meta mensal).
-- Ranking entre amigos (opcional, escondido por padrão).
-- Página `/videoaulas`: lista curada (seed inicial estática por matéria) com filtros, favoritos, marcação de concluído.
-- Tema claro/escuro toggle.
-
-## Stack técnica
-
-- TanStack Start + Supabase (via Lovable Cloud).
-- `createServerFn` para reads/writes; `/api/chat` server route para streaming.
-- shadcn + Tailwind no design já existente (sky/coral/rose).
-- Zod para validação.
-
-## Pronto para começar?
-
-Confirma e eu já ativo o Cloud + provisiono o LOVABLE_API_KEY e começo a Entrega 1.
+- O scrape do YouTube depende do HTML público; se mudar o regex, links voltam ao fallback de busca. Logamos o falhado e seguimos.
+- A geração de plano pode custar créditos da Lovable AI; o cron está limitado a usuários com onboarding completo e a só completar o que falta.
+- `schedule_tasks` já tem RLS por `user_id`; o endpoint cron usa `supabaseAdmin` e itera por usuário explicitamente.

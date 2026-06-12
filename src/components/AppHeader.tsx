@@ -1,10 +1,11 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Sparkles, Bot, LogOut, Trophy, Video, Medal, Moon, Sun, LayoutDashboard } from "lucide-react";
+import { Sparkles, Bot, LogOut, Trophy, Video, Medal, Moon, Sun, LayoutDashboard, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTheme } from "@/lib/theme";
 
 const navItems = [
   { to: "/dashboard",  label: "Painel",      icon: LayoutDashboard },
+  { to: "/calendario", label: "Calendário",  icon: Calendar },
   { to: "/tutor",      label: "Tutora",      icon: Bot },
   { to: "/videoaulas", label: "Videoaulas",  icon: Video },
   { to: "/conquistas", label: "Conquistas",  icon: Trophy },

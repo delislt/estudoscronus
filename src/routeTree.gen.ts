@@ -19,8 +19,10 @@ import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedConquistasRouteImport } from './routes/_authenticated/conquistas'
+import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
 import { Route as AuthenticatedTutorIndexRouteImport } from './routes/_authenticated/tutor.index'
 import { Route as AuthenticatedTutorThreadIdRouteImport } from './routes/_authenticated/tutor.$threadId'
+import { Route as ApiPublicHooksGenerateDailyPlansRouteImport } from './routes/api/public/hooks/generate-daily-plans'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -71,6 +73,11 @@ const AuthenticatedConquistasRoute = AuthenticatedConquistasRouteImport.update({
   path: '/conquistas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTutorIndexRoute = AuthenticatedTutorIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -82,10 +89,17 @@ const AuthenticatedTutorThreadIdRoute =
     path: '/$threadId',
     getParentRoute: () => AuthenticatedTutorRoute,
   } as any)
+const ApiPublicHooksGenerateDailyPlansRoute =
+  ApiPublicHooksGenerateDailyPlansRouteImport.update({
+    id: '/api/public/hooks/generate-daily-plans',
+    path: '/api/public/hooks/generate-daily-plans',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/calendario': typeof AuthenticatedCalendarioRoute
   '/conquistas': typeof AuthenticatedConquistasRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -95,10 +109,12 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/tutor/$threadId': typeof AuthenticatedTutorThreadIdRoute
   '/tutor/': typeof AuthenticatedTutorIndexRoute
+  '/api/public/hooks/generate-daily-plans': typeof ApiPublicHooksGenerateDailyPlansRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/calendario': typeof AuthenticatedCalendarioRoute
   '/conquistas': typeof AuthenticatedConquistasRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -107,12 +123,14 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/tutor/$threadId': typeof AuthenticatedTutorThreadIdRoute
   '/tutor': typeof AuthenticatedTutorIndexRoute
+  '/api/public/hooks/generate-daily-plans': typeof ApiPublicHooksGenerateDailyPlansRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/conquistas': typeof AuthenticatedConquistasRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -122,12 +140,14 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/_authenticated/tutor/$threadId': typeof AuthenticatedTutorThreadIdRoute
   '/_authenticated/tutor/': typeof AuthenticatedTutorIndexRoute
+  '/api/public/hooks/generate-daily-plans': typeof ApiPublicHooksGenerateDailyPlansRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/calendario'
     | '/conquistas'
     | '/dashboard'
     | '/onboarding'
@@ -137,10 +157,12 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/tutor/$threadId'
     | '/tutor/'
+    | '/api/public/hooks/generate-daily-plans'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/calendario'
     | '/conquistas'
     | '/dashboard'
     | '/onboarding'
@@ -149,11 +171,13 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/tutor/$threadId'
     | '/tutor'
+    | '/api/public/hooks/generate-daily-plans'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/calendario'
     | '/_authenticated/conquistas'
     | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
@@ -163,6 +187,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/_authenticated/tutor/$threadId'
     | '/_authenticated/tutor/'
+    | '/api/public/hooks/generate-daily-plans'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -170,6 +195,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiPublicHooksGenerateDailyPlansRoute: typeof ApiPublicHooksGenerateDailyPlansRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -244,6 +270,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConquistasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/calendario': {
+      id: '/_authenticated/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof AuthenticatedCalendarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/tutor/': {
       id: '/_authenticated/tutor/'
       path: '/'
@@ -257,6 +290,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/tutor/$threadId'
       preLoaderRoute: typeof AuthenticatedTutorThreadIdRouteImport
       parentRoute: typeof AuthenticatedTutorRoute
+    }
+    '/api/public/hooks/generate-daily-plans': {
+      id: '/api/public/hooks/generate-daily-plans'
+      path: '/api/public/hooks/generate-daily-plans'
+      fullPath: '/api/public/hooks/generate-daily-plans'
+      preLoaderRoute: typeof ApiPublicHooksGenerateDailyPlansRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -275,6 +315,7 @@ const AuthenticatedTutorRouteWithChildren =
   AuthenticatedTutorRoute._addFileChildren(AuthenticatedTutorRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedConquistasRoute: typeof AuthenticatedConquistasRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -284,6 +325,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedConquistasRoute: AuthenticatedConquistasRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
@@ -300,6 +342,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiPublicHooksGenerateDailyPlansRoute: ApiPublicHooksGenerateDailyPlansRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

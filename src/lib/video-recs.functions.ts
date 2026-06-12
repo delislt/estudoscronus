@@ -3,6 +3,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { generateText } from "ai";
 import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { resolveManyYoutubeVideos } from "./youtube.functions";
 
 function extractJSON(raw: string): unknown {
   let cleaned = raw
@@ -92,7 +93,12 @@ Regras importantes:
     // Replace existing recommendations
     await supabase.from("video_recommendations").delete().eq("user_id", userId);
 
-    const rows = object.recommendations.map((r) => ({
+    // Resolve actual YouTube videoIds in parallel
+    const resolved = await resolveManyYoutubeVideos(
+      object.recommendations.map((r) => ({ query: r.search_query, channel: r.channel_hint })),
+    );
+
+    const rows = object.recommendations.map((r, i) => ({
       user_id: userId,
       title: r.title,
       subject: r.subject,
@@ -102,6 +108,8 @@ Regras importantes:
       search_query: r.search_query,
       channel_hint: r.channel_hint,
       duration_hint: r.duration_hint,
+      video_id: resolved[i]?.videoId ?? null,
+      resolved_title: resolved[i]?.title ?? null,
     }));
 
     const { error } = await supabase.from("video_recommendations").insert(rows);

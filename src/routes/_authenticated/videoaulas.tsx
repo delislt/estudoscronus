@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
 import { generateVideoRecommendations } from "@/lib/video-recs.functions";
+import { resolveYoutubeVideo } from "@/lib/youtube.functions";
 import { Heart, CheckCircle2, ExternalLink, Filter, Sparkles, Loader2, Play as YoutubeIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -22,24 +23,59 @@ type Rec = {
   search_query: string;
   channel_hint: string | null;
   duration_hint: string | null;
+  video_id: string | null;
+  resolved_title: string | null;
   favorited: boolean;
   completed: boolean;
 };
 
 type Filter = "todas" | "favoritas" | "concluidas";
 
-function youtubeSearchUrl(q: string, channel?: string | null) {
-  const query = channel ? `${q} ${channel}` : q;
-  return `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+function openYoutube(videoId: string) {
+  const w = window.open(`https://www.youtube.com/watch?v=${videoId}`, "_blank", "noopener,noreferrer");
+  if (!w) {
+    // popup blocked — navigate top window
+    window.location.href = `https://www.youtube.com/watch?v=${videoId}`;
+  }
 }
+
 
 function VideoaulasPage() {
   const generate = useServerFn(generateVideoRecommendations);
+  const resolve = useServerFn(resolveYoutubeVideo);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [recs, setRecs] = useState<Rec[]>([]);
   const [subject, setSubject] = useState<string>("todas");
   const [filter, setFilter] = useState<Filter>("todas");
+  const [resolving, setResolving] = useState<string | null>(null);
+
+  async function handleWatch(v: Rec) {
+    if (v.video_id) {
+      openYoutube(v.video_id);
+      return;
+    }
+    setResolving(v.id);
+    try {
+      const res = await resolve({ data: { query: v.search_query, channel: v.channel_hint } });
+      if (res.videoId) {
+        await supabase
+          .from("video_recommendations")
+          .update({ video_id: res.videoId, resolved_title: res.title ?? null })
+          .eq("id", v.id);
+        setRecs((prev) => prev.map((x) => (x.id === v.id ? { ...x, video_id: res.videoId, resolved_title: res.title ?? null } : x)));
+        openYoutube(res.videoId);
+      } else {
+        const q = v.channel_hint ? `${v.search_query} ${v.channel_hint}` : v.search_query;
+        window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`, "_blank", "noopener,noreferrer");
+      }
+    } catch {
+      toast.error("Não consegui abrir o vídeo");
+    } finally {
+      setResolving(null);
+    }
+  }
+
 
   const load = useCallback(async () => {
     const { data: u } = await supabase.auth.getUser();
@@ -163,54 +199,74 @@ function VideoaulasPage() {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {filtered.map((v) => (
-              <article key={v.id} className="rounded-3xl bg-card border border-border/60 p-5 shadow-sm flex flex-col gap-3">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-semibold text-primary bg-primary/10 rounded-full px-2.5 py-0.5">
-                    {v.subject}
-                  </span>
-                  {v.duration_hint && (
-                    <span className="text-xs text-muted-foreground">{v.duration_hint}</span>
+              <article key={v.id} className="rounded-3xl bg-card border border-border/60 overflow-hidden shadow-sm flex flex-col">
+                {v.video_id ? (
+                  <button
+                    onClick={() => handleWatch(v)}
+                    className="relative block aspect-video bg-muted overflow-hidden group"
+                    aria-label="Abrir no YouTube"
+                  >
+                    <img
+                      src={`https://i.ytimg.com/vi/${v.video_id}/hqdefault.jpg`}
+                      alt={v.title}
+                      className="h-full w-full object-cover group-hover:scale-105 transition"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 grid place-items-center bg-black/20 group-hover:bg-black/30 transition">
+                      <span className="h-14 w-14 rounded-full bg-white/95 grid place-items-center shadow-lg">
+                        <YoutubeIcon className="h-6 w-6 text-coral fill-coral" />
+                      </span>
+                    </div>
+                  </button>
+                ) : null}
+                <div className="p-5 flex flex-col gap-3 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-semibold text-primary bg-primary/10 rounded-full px-2.5 py-0.5">
+                      {v.subject}
+                    </span>
+                    {v.duration_hint && (
+                      <span className="text-xs text-muted-foreground">{v.duration_hint}</span>
+                    )}
+                  </div>
+                  <h3 className="font-display font-bold leading-snug">{v.resolved_title ?? v.title}</h3>
+                  {v.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-3">{v.description}</p>
                   )}
-                </div>
-                <h3 className="font-display font-bold leading-snug">{v.title}</h3>
-                {v.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-3">{v.description}</p>
-                )}
-                {v.reason && (
-                  <p className="text-xs text-foreground/70 bg-muted/60 rounded-xl p-2.5 leading-relaxed">
-                    <span className="font-semibold">Por que pra você: </span>{v.reason}
-                  </p>
-                )}
-                {v.channel_hint && (
-                  <p className="text-xs text-muted-foreground inline-flex items-center gap-1">
-                    <YoutubeIcon className="h-3.5 w-3.5 text-coral" />
-                    Canal sugerido: <span className="font-medium text-foreground">{v.channel_hint}</span>
-                  </p>
-                )}
-                <div className="mt-auto flex items-center gap-2 pt-2">
-                  <button
-                    onClick={() => patch(v, { favorited: !v.favorited })}
-                    aria-label="Favoritar"
-                    className={`p-2 rounded-full border ${v.favorited ? "bg-coral/20 border-coral text-foreground" : "bg-background border-border/60 text-muted-foreground hover:text-foreground"}`}
-                  >
-                    <Heart className={`h-4 w-4 ${v.favorited ? "fill-current" : ""}`} />
-                  </button>
-                  <button
-                    onClick={() => patch(v, { completed: !v.completed })}
-                    aria-label="Marcar como vista"
-                    className={`p-2 rounded-full border ${v.completed ? "bg-primary border-primary text-primary-foreground" : "bg-background border-border/60 text-muted-foreground hover:text-foreground"}`}
-                  >
-                    <CheckCircle2 className="h-4 w-4" />
-                  </button>
-                  <a
-                    href={youtubeSearchUrl(v.search_query, v.channel_hint)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full text-sm font-semibold py-2 bg-foreground text-background hover:opacity-90"
-                  >
-                    Ver no YouTube
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
+                  {v.reason && (
+                    <p className="text-xs text-foreground/70 bg-muted/60 rounded-xl p-2.5 leading-relaxed">
+                      <span className="font-semibold">Por que pra você: </span>{v.reason}
+                    </p>
+                  )}
+                  {v.channel_hint && (
+                    <p className="text-xs text-muted-foreground inline-flex items-center gap-1">
+                      <YoutubeIcon className="h-3.5 w-3.5 text-coral" />
+                      Canal sugerido: <span className="font-medium text-foreground">{v.channel_hint}</span>
+                    </p>
+                  )}
+                  <div className="mt-auto flex items-center gap-2 pt-2">
+                    <button
+                      onClick={() => patch(v, { favorited: !v.favorited })}
+                      aria-label="Favoritar"
+                      className={`p-2 rounded-full border ${v.favorited ? "bg-coral/20 border-coral text-foreground" : "bg-background border-border/60 text-muted-foreground hover:text-foreground"}`}
+                    >
+                      <Heart className={`h-4 w-4 ${v.favorited ? "fill-current" : ""}`} />
+                    </button>
+                    <button
+                      onClick={() => patch(v, { completed: !v.completed })}
+                      aria-label="Marcar como vista"
+                      className={`p-2 rounded-full border ${v.completed ? "bg-primary border-primary text-primary-foreground" : "bg-background border-border/60 text-muted-foreground hover:text-foreground"}`}
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleWatch(v)}
+                      disabled={resolving === v.id}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full text-sm font-semibold py-2 bg-foreground text-background hover:opacity-90 disabled:opacity-60"
+                    >
+                      {resolving === v.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ExternalLink className="h-3.5 w-3.5" />}
+                      Ver no YouTube
+                    </button>
+                  </div>
                 </div>
               </article>
             ))}
