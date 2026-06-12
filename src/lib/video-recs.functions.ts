@@ -3,6 +3,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { generateText } from "ai";
 import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { resolveManyYoutubeVideos } from "./youtube.functions";
 
 function extractJSON(raw: string): unknown {
   let cleaned = raw
