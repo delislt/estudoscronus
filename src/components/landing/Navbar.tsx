@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 
 export function Navbar() {
@@ -16,13 +17,15 @@ export function Navbar() {
           <a href="#ia-tutora" className="hover:text-foreground transition">IA tutora</a>
         </nav>
         <div className="flex items-center gap-3">
-          <a href="#cta" className="hidden sm:inline text-sm text-muted-foreground hover:text-foreground">Entrar</a>
-          <a
-            href="#cta"
+          <Link to="/auth" className="hidden sm:inline text-sm text-muted-foreground hover:text-foreground">
+            Entrar
+          </Link>
+          <Link
+            to="/auth"
             className="inline-flex h-9 items-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm hover:brightness-105 transition"
           >
             Começar
-          </a>
+          </Link>
         </div>
       </div>
     </header>

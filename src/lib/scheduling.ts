@@ -59,8 +59,9 @@ export function generateSchedule(opts: {
     const totalBlocks = Math.max(1, Math.round((hoursPerDay * 60) / blockMin));
     let lastSubject: SubjectLite | null = null;
     for (let b = 0; b < totalBlocks; b++) {
-      const isReview = b > 0 && b % 4 === 0 && !!lastSubject;
-      const subject = isReview ? lastSubject! : pool[cursor++ % pool.length];
+      const isReview: boolean = b > 0 && b % 4 === 0 && lastSubject !== null;
+      const subject: SubjectLite =
+        isReview && lastSubject ? lastSubject : pool[cursor++ % pool.length];
       tasks.push({
         subject_id: subject.id,
         title: isReview ? `Revisão — ${subject.name}` : subject.name,
