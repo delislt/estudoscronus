@@ -16,6 +16,8 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedTutorRouteImport } from './routes/_authenticated/tutor'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedTutorIndexRouteImport } from './routes/_authenticated/tutor.index'
+import { Route as AuthenticatedTutorThreadIdRouteImport } from './routes/_authenticated/tutor.$threadId'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -51,22 +53,36 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTutorIndexRoute = AuthenticatedTutorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedTutorRoute,
+} as any)
+const AuthenticatedTutorThreadIdRoute =
+  AuthenticatedTutorThreadIdRouteImport.update({
+    id: '/$threadId',
+    path: '/$threadId',
+    getParentRoute: () => AuthenticatedTutorRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
-  '/tutor': typeof AuthenticatedTutorRoute
+  '/tutor': typeof AuthenticatedTutorRouteWithChildren
   '/api/chat': typeof ApiChatRoute
+  '/tutor/$threadId': typeof AuthenticatedTutorThreadIdRoute
+  '/tutor/': typeof AuthenticatedTutorIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
-  '/tutor': typeof AuthenticatedTutorRoute
   '/api/chat': typeof ApiChatRoute
+  '/tutor/$threadId': typeof AuthenticatedTutorThreadIdRoute
+  '/tutor': typeof AuthenticatedTutorIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -75,8 +91,10 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
-  '/_authenticated/tutor': typeof AuthenticatedTutorRoute
+  '/_authenticated/tutor': typeof AuthenticatedTutorRouteWithChildren
   '/api/chat': typeof ApiChatRoute
+  '/_authenticated/tutor/$threadId': typeof AuthenticatedTutorThreadIdRoute
+  '/_authenticated/tutor/': typeof AuthenticatedTutorIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -87,8 +105,17 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/tutor'
     | '/api/chat'
+    | '/tutor/$threadId'
+    | '/tutor/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/onboarding' | '/tutor' | '/api/chat'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/onboarding'
+    | '/api/chat'
+    | '/tutor/$threadId'
+    | '/tutor'
   id:
     | '__root__'
     | '/'
@@ -98,6 +125,8 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/tutor'
     | '/api/chat'
+    | '/_authenticated/tutor/$threadId'
+    | '/_authenticated/tutor/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,19 +187,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/tutor/': {
+      id: '/_authenticated/tutor/'
+      path: '/'
+      fullPath: '/tutor/'
+      preLoaderRoute: typeof AuthenticatedTutorIndexRouteImport
+      parentRoute: typeof AuthenticatedTutorRoute
+    }
+    '/_authenticated/tutor/$threadId': {
+      id: '/_authenticated/tutor/$threadId'
+      path: '/$threadId'
+      fullPath: '/tutor/$threadId'
+      preLoaderRoute: typeof AuthenticatedTutorThreadIdRouteImport
+      parentRoute: typeof AuthenticatedTutorRoute
+    }
   }
 }
+
+interface AuthenticatedTutorRouteChildren {
+  AuthenticatedTutorThreadIdRoute: typeof AuthenticatedTutorThreadIdRoute
+  AuthenticatedTutorIndexRoute: typeof AuthenticatedTutorIndexRoute
+}
+
+const AuthenticatedTutorRouteChildren: AuthenticatedTutorRouteChildren = {
+  AuthenticatedTutorThreadIdRoute: AuthenticatedTutorThreadIdRoute,
+  AuthenticatedTutorIndexRoute: AuthenticatedTutorIndexRoute,
+}
+
+const AuthenticatedTutorRouteWithChildren =
+  AuthenticatedTutorRoute._addFileChildren(AuthenticatedTutorRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
-  AuthenticatedTutorRoute: typeof AuthenticatedTutorRoute
+  AuthenticatedTutorRoute: typeof AuthenticatedTutorRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
-  AuthenticatedTutorRoute: AuthenticatedTutorRoute,
+  AuthenticatedTutorRoute: AuthenticatedTutorRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -185,3 +241,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
