@@ -68,9 +68,9 @@ async function planForDate(
       .order("difficulty", { ascending: false }),
     supabase
       .from("study_sessions")
-      .select("subject_id, duration_min, started_at")
+      .select("subject_id, duration_min, created_at")
       .eq("user_id", userId)
-      .gte("started_at", new Date(Date.now() - 7 * 86400000).toISOString()),
+      .gte("created_at", new Date(Date.now() - 7 * 86400000).toISOString()),
   ]);
 
   if (!onb) return 0; // no onboarding → don't plan
