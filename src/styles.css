@@ -129,7 +129,13 @@
 
 @utility bg-app-gradient {
   background-image:
-    radial-gradient(1200px 600px at 80% -10%, oklch(0.94 0.06 220 / 0.7), transparent 60%),
-    radial-gradient(900px 500px at -10% 10%, oklch(0.95 0.05 20 / 0.55), transparent 60%),
-    linear-gradient(180deg, oklch(0.99 0.01 240), oklch(0.98 0.02 220));
+    radial-gradient(1200px 600px at 80% -10%, color-mix(in oklab, var(--primary) 25%, transparent), transparent 60%),
+    radial-gradient(900px 500px at -10% 10%, color-mix(in oklab, var(--coral) 18%, transparent), transparent 60%),
+    linear-gradient(180deg, var(--background), color-mix(in oklab, var(--background) 92%, var(--primary)));
+}
+
+@utility no-scrollbar {
+  &::-webkit-scrollbar { display: none; }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
