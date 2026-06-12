@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getThreadMessages } from "@/lib/tutor.functions";
 import { Bot, User as UserIcon, Send, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import ReactMarkdown from "react-markdown";
+import { MessageResponse } from "@/components/ai-elements/message";
 
 export const Route = createFileRoute("/_authenticated/tutor/$threadId")({
   component: ThreadChat,
@@ -160,7 +160,7 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
                     : "text-sm text-foreground prose prose-sm max-w-none prose-p:my-2 prose-pre:bg-muted prose-pre:text-foreground prose-code:text-foreground"
                 }`}
               >
-                {isUser ? text : <ReactMarkdown>{text || "…"}</ReactMarkdown>}
+                {isUser ? text : <MessageResponse>{text || "…"}</MessageResponse>}
               </div>
             </div>
           );
