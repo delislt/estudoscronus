@@ -1,13 +1,14 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
   CheckCircle2, Circle, Flame, Trophy, CalendarDays, Target,
 } from "lucide-react";
-import { toISODate, xpForMinutes, levelFromXp } from "@/lib/scheduling";
+import { toISODate, levelFromXp } from "@/lib/scheduling";
 import { AppHeader } from "@/components/AppHeader";
-import { checkAndAwardAchievements } from "@/lib/achievements";
+import { completeStudyTask } from "@/lib/progress.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Painel — Study" }] }),
