@@ -1,0 +1,66 @@
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Sparkles, Bot, LogOut, Trophy, Video, Medal, Moon, Sun, LayoutDashboard } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useTheme } from "@/lib/theme";
+
+const navItems = [
+  { to: "/dashboard",  label: "Painel",      icon: LayoutDashboard },
+  { to: "/tutor",      label: "Tutora",      icon: Bot },
+  { to: "/videoaulas", label: "Videoaulas",  icon: Video },
+  { to: "/conquistas", label: "Conquistas",  icon: Trophy },
+  { to: "/ranking",    label: "Ranking",     icon: Medal },
+] as const;
+
+export function AppHeader() {
+  const navigate = useNavigate();
+  const { theme, toggle } = useTheme();
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    navigate({ to: "/auth" });
+  }
+
+  return (
+    <header className="border-b border-border/40 bg-background/70 backdrop-blur sticky top-0 z-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+        <Link to="/dashboard" className="inline-flex items-center gap-2 font-display font-bold shrink-0">
+          <span className="h-8 w-8 rounded-xl bg-primary text-primary-foreground grid place-items-center">
+            <Sparkles className="h-4 w-4" />
+          </span>
+          <span className="hidden sm:inline">Study</span>
+        </Link>
+
+        <nav className="flex items-center gap-0.5 sm:gap-1 overflow-x-auto no-scrollbar">
+          {navItems.map((it) => (
+            <Link
+              key={it.to}
+              to={it.to}
+              className="px-2.5 sm:px-3 py-2 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted inline-flex items-center gap-1.5 shrink-0"
+              activeProps={{ className: "px-2.5 sm:px-3 py-2 rounded-full text-sm font-medium bg-muted text-foreground inline-flex items-center gap-1.5 shrink-0" }}
+            >
+              <it.icon className="h-4 w-4" />
+              <span className="hidden sm:inline">{it.label}</span>
+            </Link>
+          ))}
+        </nav>
+
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            onClick={toggle}
+            aria-label="Alternar tema"
+            className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground"
+          >
+            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+          <button
+            onClick={handleLogout}
+            aria-label="Sair"
+            className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    </header>
+  );
+}
