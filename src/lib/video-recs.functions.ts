@@ -70,7 +70,6 @@ Regras importantes:
       model,
       schema: RecommendationSchema,
       prompt,
-      mode: "json",
     });
 
     // Replace existing recommendations
