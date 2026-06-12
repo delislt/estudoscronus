@@ -79,65 +79,25 @@ function Dashboard() {
     load();
   }, [load]);
 
+  const complete = useServerFn(completeStudyTask);
+
   async function completeTask(t: Task) {
     if (t.completed) return;
-    const { data: userData } = await supabase.auth.getUser();
-    const uid = userData.user?.id;
-    if (!uid) return;
-
     setTodayTasks((cur) => cur.map((x) => (x.id === t.id ? { ...x, completed: true } : x)));
-
-    const today = toISODate(new Date());
-    await supabase
-      .from("schedule_tasks")
-      .update({ completed: true, completed_at: new Date().toISOString() })
-      .eq("id", t.id);
-    await supabase.from("study_sessions").insert({
-      user_id: uid,
-      task_id: t.id,
-      subject_id: t.subject_id,
-      duration_min: t.duration_min,
-    });
-
-    // XP + streak update
-    const gainedXp = xpForMinutes(t.duration_min);
-    const last = xp?.last_study_date;
-    let streak = xp?.streak_days ?? 0;
-    if (last !== today) {
-      const yest = new Date();
-      yest.setDate(yest.getDate() - 1);
-      streak = last === toISODate(yest) ? streak + 1 : 1;
-    }
-    const newXp = (xp?.xp ?? 0) + gainedXp;
-    const { level } = levelFromXp(newXp);
-    await supabase
-      .from("user_xp")
-      .update({ xp: newXp, level, streak_days: streak, last_study_date: today })
-      .eq("user_id", uid);
-
-    // Bump weekly goal progress
-    const weekly = goals.find((g) => g.period === "weekly");
-    if (weekly) {
-      await supabase
-        .from("goals")
-        .update({ current_value: Math.min(weekly.target_value, weekly.current_value + t.duration_min) })
-        .eq("id", weekly.id);
-    }
-
-    toast.success(`+${gainedXp} XP 🎉`);
-
-    // Achievement check
     try {
-      const unlocked = await checkAndAwardAchievements(uid);
-      for (const a of unlocked) {
+      const res = await complete({ data: { taskId: t.id } });
+      if (res.gainedXp > 0) toast.success(`+${res.gainedXp} XP 🎉`);
+      for (const a of res.newlyUnlocked) {
         toast.success(`Conquista desbloqueada: ${a.title} 🏆`, { description: a.description });
       }
     } catch (e) {
-      console.error("achievement check failed", e);
+      const err = e as Error;
+      setTodayTasks((cur) => cur.map((x) => (x.id === t.id ? { ...x, completed: false } : x)));
+      toast.error("Falha ao concluir", { description: err.message });
     }
-
     load();
   }
+
 
   if (needsOnboarding) return null;
   if (loading)
