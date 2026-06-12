@@ -6,7 +6,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { ensureUpcomingPlan, generateDailyPlan } from "@/lib/calendar.functions";
 import { CheckCircle2, ChevronLeft, ChevronRight, Loader2, RefreshCw, Sparkles, SkipForward, BookOpen, Calendar as CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
-import { checkAndAwardAchievements } from "@/lib/achievements";
+import { completeStudyTask } from "@/lib/progress.functions";
 
 export const Route = createFileRoute("/_authenticated/calendario")({
   head: () => ({ meta: [{ title: "Calendário — Study" }] }),
@@ -143,30 +143,31 @@ function CalendarioPage() {
     }
   }
 
+  const complete = useServerFn(completeStudyTask);
+
   async function toggleDone(t: Task) {
     const next = !t.completed;
     setTasks((prev) => prev.map((x) => (x.id === t.id ? { ...x, completed: next } : x)));
-    const { data: u } = await supabase.auth.getUser();
-    const uid = u.user?.id;
-    if (!uid) return;
-    await supabase
-      .from("schedule_tasks")
-      .update({ completed: next, completed_at: next ? new Date().toISOString() : null })
-      .eq("id", t.id);
     if (next) {
-      await supabase.from("study_sessions").insert({
-        user_id: uid,
-        subject_id: t.subject_id,
-        duration_min: t.duration_min,
-        task_id: t.id,
-      });
       try {
-        await checkAndAwardAchievements(uid);
+        const res = await complete({ data: { taskId: t.id } });
+        if (res.gainedXp > 0) toast.success(`+${res.gainedXp} XP 🎉`);
+        for (const a of res.newlyUnlocked) {
+          toast.success(`Conquista desbloqueada: ${a.title} 🏆`, { description: a.description });
+        }
       } catch (e) {
-        console.error(e);
+        const err = e as Error;
+        setTasks((prev) => prev.map((x) => (x.id === t.id ? { ...x, completed: !next } : x)));
+        toast.error("Falha ao concluir", { description: err.message });
       }
+    } else {
+      await supabase
+        .from("schedule_tasks")
+        .update({ completed: false, completed_at: null })
+        .eq("id", t.id);
     }
   }
+
 
   async function toggleSkip(t: Task) {
     const next = !t.skipped;
