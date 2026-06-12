@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
 import { generateVideoRecommendations } from "@/lib/video-recs.functions";
-import { Heart, CheckCircle2, ExternalLink, Filter, Sparkles, Loader2, Youtube } from "lucide-react";
+import { Heart, CheckCircle2, ExternalLink, Filter, Sparkles, Loader2, Youtube as YoutubeIcon } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/videoaulas")({
