@@ -158,8 +158,7 @@ function CalendarioPage() {
         user_id: uid,
         subject_id: t.subject_id,
         duration_min: t.duration_min,
-        started_at: new Date().toISOString(),
-        notes: t.title,
+        task_id: t.id,
       });
       try {
         await checkAndAwardAchievements(uid);
