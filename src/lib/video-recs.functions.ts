@@ -1,8 +1,26 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { generateObject } from "ai";
+import { generateText } from "ai";
 import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+
+function extractJSON(raw: string): unknown {
+  let cleaned = raw
+    .replace(/^```json\s*/im, "")
+    .replace(/^```\s*/im, "")
+    .replace(/```\s*$/im, "")
+    .trim();
+  if (!cleaned.startsWith("{") && !cleaned.startsWith("[")) {
+    const objStart = cleaned.indexOf("{");
+    const arrStart = cleaned.indexOf("[");
+    const isArray = arrStart !== -1 && (objStart === -1 || arrStart < objStart);
+    const start = isArray ? arrStart : objStart;
+    const end = isArray ? cleaned.lastIndexOf("]") : cleaned.lastIndexOf("}");
+    if (start === -1 || end <= start) throw new Error("Resposta da IA sem JSON");
+    cleaned = cleaned.slice(start, end + 1);
+  }
+  return JSON.parse(cleaned);
+}
 
 const RecommendationSchema = z.object({
   recommendations: z.array(
