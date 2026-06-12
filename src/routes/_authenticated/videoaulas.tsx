@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
 import { generateVideoRecommendations } from "@/lib/video-recs.functions";
-import { Heart, CheckCircle2, ExternalLink, Filter, Sparkles, Loader2, Youtube as YoutubeIcon } from "lucide-react";
+import { Heart, CheckCircle2, ExternalLink, Filter, Sparkles, Loader2, Play as YoutubeIcon } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/videoaulas")({
@@ -151,7 +151,7 @@ function VideoaulasPage() {
           <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : recs.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-border/70 p-10 text-center bg-card/40">
-            <Youtube className="h-10 w-10 text-primary mx-auto" />
+            <YoutubeIcon className="h-10 w-10 text-primary mx-auto" />
             <h2 className="font-display font-bold text-xl mt-3">Nenhuma recomendação ainda</h2>
             <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
               Clique em <strong>Gerar recomendações</strong> e a IA monta uma playlist personalizada
@@ -183,7 +183,7 @@ function VideoaulasPage() {
                 )}
                 {v.channel_hint && (
                   <p className="text-xs text-muted-foreground inline-flex items-center gap-1">
-                    <Youtube className="h-3.5 w-3.5 text-coral" />
+                    <YoutubeIcon className="h-3.5 w-3.5 text-coral" />
                     Canal sugerido: <span className="font-medium text-foreground">{v.channel_hint}</span>
                   </p>
                 )}
