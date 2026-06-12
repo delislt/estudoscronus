@@ -3,9 +3,11 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
-  Sparkles, CheckCircle2, Circle, Flame, Trophy, Bot, LogOut, CalendarDays, Target,
+  CheckCircle2, Circle, Flame, Trophy, CalendarDays, Target,
 } from "lucide-react";
 import { toISODate, xpForMinutes, levelFromXp } from "@/lib/scheduling";
+import { AppHeader } from "@/components/AppHeader";
+import { checkAndAwardAchievements } from "@/lib/achievements";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Painel — Study" }] }),
