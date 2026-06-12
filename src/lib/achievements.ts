@@ -42,25 +42,9 @@ function reached(a: AchievementRow, s: UserStats) {
   }
 }
 
-/** Returns newly unlocked achievements for toast feedback. */
-export async function checkAndAwardAchievements(userId: string): Promise<AchievementRow[]> {
-  const [{ data: all }, { data: owned }] = await Promise.all([
-    supabase.from("achievements").select("*"),
-    supabase.from("user_achievements").select("achievement_id").eq("user_id", userId),
-  ]);
-  const list = (all ?? []) as AchievementRow[];
-  const ownedIds = new Set((owned ?? []).map((r) => r.achievement_id));
-  const stats = await fetchUserStats(userId);
+// Achievement awarding is performed server-side via `completeStudyTask`
+// (see `src/lib/progress.functions.ts`). Clients can no longer insert
+// `user_achievements` rows directly — the RLS INSERT policy was removed
+// to prevent users from self-granting achievements.
+export { reached };
 
-  const newly: AchievementRow[] = [];
-  for (const a of list) {
-    if (ownedIds.has(a.id)) continue;
-    if (reached(a, stats)) newly.push(a);
-  }
-  if (newly.length) {
-    await supabase
-      .from("user_achievements")
-      .insert(newly.map((a) => ({ user_id: userId, achievement_id: a.id })));
-  }
-  return newly;
-}
