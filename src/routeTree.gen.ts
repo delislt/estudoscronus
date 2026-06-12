@@ -19,6 +19,7 @@ import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedConquistasRouteImport } from './routes/_authenticated/conquistas'
+import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
 import { Route as AuthenticatedTutorIndexRouteImport } from './routes/_authenticated/tutor.index'
 import { Route as AuthenticatedTutorThreadIdRouteImport } from './routes/_authenticated/tutor.$threadId'
 import { Route as ApiPublicHooksGenerateDailyPlansRouteImport } from './routes/api/public/hooks/generate-daily-plans'
@@ -72,6 +73,11 @@ const AuthenticatedConquistasRoute = AuthenticatedConquistasRouteImport.update({
   path: '/conquistas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTutorIndexRoute = AuthenticatedTutorIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -93,6 +99,7 @@ const ApiPublicHooksGenerateDailyPlansRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/calendario': typeof AuthenticatedCalendarioRoute
   '/conquistas': typeof AuthenticatedConquistasRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/calendario': typeof AuthenticatedCalendarioRoute
   '/conquistas': typeof AuthenticatedConquistasRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/conquistas': typeof AuthenticatedConquistasRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -138,6 +147,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/calendario'
     | '/conquistas'
     | '/dashboard'
     | '/onboarding'
@@ -152,6 +162,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/calendario'
     | '/conquistas'
     | '/dashboard'
     | '/onboarding'
@@ -166,6 +177,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/calendario'
     | '/_authenticated/conquistas'
     | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
@@ -258,6 +270,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConquistasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/calendario': {
+      id: '/_authenticated/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof AuthenticatedCalendarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/tutor/': {
       id: '/_authenticated/tutor/'
       path: '/'
@@ -296,6 +315,7 @@ const AuthenticatedTutorRouteWithChildren =
   AuthenticatedTutorRoute._addFileChildren(AuthenticatedTutorRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedConquistasRoute: typeof AuthenticatedConquistasRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -305,6 +325,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedConquistasRoute: AuthenticatedConquistasRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
@@ -326,3 +347,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
