@@ -5,25 +5,18 @@ import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 
 const RecommendationSchema = z.object({
-  recommendations: z
-    .array(
-      z.object({
-        title: z.string().describe("Título do conteúdo da aula"),
-        subject: z.string().describe("Matéria, ex: Matemática, Física"),
-        level: z.enum(["fundamental", "medio", "superior"]).default("medio"),
-        description: z.string().describe("Resumo curto do que a aula ensina"),
-        reason: z.string().describe("Por que estamos recomendando para este aluno"),
-        search_query: z
-          .string()
-          .describe("Busca exata pra usar no YouTube em português — específica, com matéria e tópico"),
-        channel_hint: z
-          .string()
-          .describe("Canal brasileiro sugerido (ex: 'Khan Academy Brasil', 'Curso Enem Gratuito', 'Professor Ferretto', 'Stoodi', 'Equaciona')"),
-        duration_hint: z.string().describe("Duração aproximada, ex: '10-15 min'"),
-      }),
-    )
-    .min(8)
-    .max(12),
+  recommendations: z.array(
+    z.object({
+      title: z.string(),
+      subject: z.string(),
+      level: z.string(),
+      description: z.string(),
+      reason: z.string(),
+      search_query: z.string(),
+      channel_hint: z.string(),
+      duration_hint: z.string(),
+    }),
+  ),
 });
 
 export const generateVideoRecommendations = createServerFn({ method: "POST" })
