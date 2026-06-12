@@ -199,54 +199,74 @@ function VideoaulasPage() {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {filtered.map((v) => (
-              <article key={v.id} className="rounded-3xl bg-card border border-border/60 p-5 shadow-sm flex flex-col gap-3">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-semibold text-primary bg-primary/10 rounded-full px-2.5 py-0.5">
-                    {v.subject}
-                  </span>
-                  {v.duration_hint && (
-                    <span className="text-xs text-muted-foreground">{v.duration_hint}</span>
+              <article key={v.id} className="rounded-3xl bg-card border border-border/60 overflow-hidden shadow-sm flex flex-col">
+                {v.video_id ? (
+                  <button
+                    onClick={() => handleWatch(v)}
+                    className="relative block aspect-video bg-muted overflow-hidden group"
+                    aria-label="Abrir no YouTube"
+                  >
+                    <img
+                      src={`https://i.ytimg.com/vi/${v.video_id}/hqdefault.jpg`}
+                      alt={v.title}
+                      className="h-full w-full object-cover group-hover:scale-105 transition"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 grid place-items-center bg-black/20 group-hover:bg-black/30 transition">
+                      <span className="h-14 w-14 rounded-full bg-white/95 grid place-items-center shadow-lg">
+                        <YoutubeIcon className="h-6 w-6 text-coral fill-coral" />
+                      </span>
+                    </div>
+                  </button>
+                ) : null}
+                <div className="p-5 flex flex-col gap-3 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-semibold text-primary bg-primary/10 rounded-full px-2.5 py-0.5">
+                      {v.subject}
+                    </span>
+                    {v.duration_hint && (
+                      <span className="text-xs text-muted-foreground">{v.duration_hint}</span>
+                    )}
+                  </div>
+                  <h3 className="font-display font-bold leading-snug">{v.resolved_title ?? v.title}</h3>
+                  {v.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-3">{v.description}</p>
                   )}
-                </div>
-                <h3 className="font-display font-bold leading-snug">{v.title}</h3>
-                {v.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-3">{v.description}</p>
-                )}
-                {v.reason && (
-                  <p className="text-xs text-foreground/70 bg-muted/60 rounded-xl p-2.5 leading-relaxed">
-                    <span className="font-semibold">Por que pra você: </span>{v.reason}
-                  </p>
-                )}
-                {v.channel_hint && (
-                  <p className="text-xs text-muted-foreground inline-flex items-center gap-1">
-                    <YoutubeIcon className="h-3.5 w-3.5 text-coral" />
-                    Canal sugerido: <span className="font-medium text-foreground">{v.channel_hint}</span>
-                  </p>
-                )}
-                <div className="mt-auto flex items-center gap-2 pt-2">
-                  <button
-                    onClick={() => patch(v, { favorited: !v.favorited })}
-                    aria-label="Favoritar"
-                    className={`p-2 rounded-full border ${v.favorited ? "bg-coral/20 border-coral text-foreground" : "bg-background border-border/60 text-muted-foreground hover:text-foreground"}`}
-                  >
-                    <Heart className={`h-4 w-4 ${v.favorited ? "fill-current" : ""}`} />
-                  </button>
-                  <button
-                    onClick={() => patch(v, { completed: !v.completed })}
-                    aria-label="Marcar como vista"
-                    className={`p-2 rounded-full border ${v.completed ? "bg-primary border-primary text-primary-foreground" : "bg-background border-border/60 text-muted-foreground hover:text-foreground"}`}
-                  >
-                    <CheckCircle2 className="h-4 w-4" />
-                  </button>
-                  <a
-                    href={youtubeSearchUrl(v.search_query, v.channel_hint)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full text-sm font-semibold py-2 bg-foreground text-background hover:opacity-90"
-                  >
-                    Ver no YouTube
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
+                  {v.reason && (
+                    <p className="text-xs text-foreground/70 bg-muted/60 rounded-xl p-2.5 leading-relaxed">
+                      <span className="font-semibold">Por que pra você: </span>{v.reason}
+                    </p>
+                  )}
+                  {v.channel_hint && (
+                    <p className="text-xs text-muted-foreground inline-flex items-center gap-1">
+                      <YoutubeIcon className="h-3.5 w-3.5 text-coral" />
+                      Canal sugerido: <span className="font-medium text-foreground">{v.channel_hint}</span>
+                    </p>
+                  )}
+                  <div className="mt-auto flex items-center gap-2 pt-2">
+                    <button
+                      onClick={() => patch(v, { favorited: !v.favorited })}
+                      aria-label="Favoritar"
+                      className={`p-2 rounded-full border ${v.favorited ? "bg-coral/20 border-coral text-foreground" : "bg-background border-border/60 text-muted-foreground hover:text-foreground"}`}
+                    >
+                      <Heart className={`h-4 w-4 ${v.favorited ? "fill-current" : ""}`} />
+                    </button>
+                    <button
+                      onClick={() => patch(v, { completed: !v.completed })}
+                      aria-label="Marcar como vista"
+                      className={`p-2 rounded-full border ${v.completed ? "bg-primary border-primary text-primary-foreground" : "bg-background border-border/60 text-muted-foreground hover:text-foreground"}`}
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleWatch(v)}
+                      disabled={resolving === v.id}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full text-sm font-semibold py-2 bg-foreground text-background hover:opacity-90 disabled:opacity-60"
+                    >
+                      {resolving === v.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ExternalLink className="h-3.5 w-3.5" />}
+                      Ver no YouTube
+                    </button>
+                  </div>
                 </div>
               </article>
             ))}
