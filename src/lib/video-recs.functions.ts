@@ -63,12 +63,14 @@ Regras importantes:
 2. NUNCA recomende canais em inglês.
 3. Cada \`search_query\` precisa ser específica (matéria + tópico exato), não genérica. Ex: "função quadrática vértice bhaskara aula" — não apenas "matemática".
 4. Distribua entre as matérias do aluno, dando mais peso para as de maior dificuldade.
-5. Misture introdução, aprofundamento e revisão.`;
+5. Misture introdução, aprofundamento e revisão.
+6. Para cada item, preencha TODOS os campos: title, subject, level ("fundamental" | "medio" | "superior"), description, reason, search_query, channel_hint, duration_hint (ex: "10-15 min").`;
 
     const { object } = await generateObject({
       model,
       schema: RecommendationSchema,
       prompt,
+      mode: "json",
     });
 
     // Replace existing recommendations
