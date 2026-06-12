@@ -42,11 +42,40 @@ function openYoutube(videoId: string) {
 
 function VideoaulasPage() {
   const generate = useServerFn(generateVideoRecommendations);
+  const resolve = useServerFn(resolveYoutubeVideo);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [recs, setRecs] = useState<Rec[]>([]);
   const [subject, setSubject] = useState<string>("todas");
   const [filter, setFilter] = useState<Filter>("todas");
+  const [resolving, setResolving] = useState<string | null>(null);
+
+  async function handleWatch(v: Rec) {
+    if (v.video_id) {
+      openYoutube(v.video_id);
+      return;
+    }
+    setResolving(v.id);
+    try {
+      const res = await resolve({ data: { query: v.search_query, channel: v.channel_hint } });
+      if (res.videoId) {
+        await supabase
+          .from("video_recommendations")
+          .update({ video_id: res.videoId, resolved_title: res.title ?? null })
+          .eq("id", v.id);
+        setRecs((prev) => prev.map((x) => (x.id === v.id ? { ...x, video_id: res.videoId, resolved_title: res.title ?? null } : x)));
+        openYoutube(res.videoId);
+      } else {
+        const q = v.channel_hint ? `${v.search_query} ${v.channel_hint}` : v.search_query;
+        window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`, "_blank", "noopener,noreferrer");
+      }
+    } catch {
+      toast.error("Não consegui abrir o vídeo");
+    } finally {
+      setResolving(null);
+    }
+  }
+
 
   const load = useCallback(async () => {
     const { data: u } = await supabase.auth.getUser();
