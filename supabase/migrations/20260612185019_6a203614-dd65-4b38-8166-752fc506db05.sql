@@ -1,0 +1,5 @@
+
+CREATE SCHEMA IF NOT EXISTS extensions;
+GRANT USAGE ON SCHEMA extensions TO authenticated, service_role, anon;
+DROP EXTENSION IF EXISTS pg_net;
+CREATE EXTENSION pg_net WITH SCHEMA extensions;
