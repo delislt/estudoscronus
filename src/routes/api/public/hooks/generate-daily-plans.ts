@@ -8,18 +8,27 @@ export const Route = createFileRoute("/api/public/hooks/generate-daily-plans")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apikey = request.headers.get("apikey") ?? request.headers.get("Authorization")?.replace("Bearer ", "");
-        const expected = process.env.SUPABASE_PUBLISHABLE_KEY;
-        if (!apikey || !expected || apikey !== expected) {
-          return new Response("Unauthorized", { status: 401 });
-        }
+        const provided = request.headers.get("x-cron-secret");
+        if (!provided) return new Response("Unauthorized", { status: 401 });
 
         const lovableKey = process.env.LOVABLE_API_KEY;
         if (!lovableKey) return new Response("Missing LOVABLE_API_KEY", { status: 500 });
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { createLovableAiGatewayProvider } = await import("@/lib/ai-gateway.server");
-        const { generateText } = await import("ai");
+
+        // Verify the cron shared secret stored in the private app_config table.
+        // The publishable/anon key is shipped to the browser and must NOT
+        // be used to guard server-side admin endpoints.
+        const { data: secretRow } = await supabaseAdmin
+          .from("app_config")
+          .select("value")
+          .eq("key", "cron_secret")
+          .maybeSingle();
+        const expected = (secretRow as any)?.value as string | undefined;
+        if (!expected || provided.length !== expected.length || provided !== expected) {
+          return new Response("Unauthorized", { status: 401 });
+        }
+
 
         // Find users who have onboarding done
         const { data: users } = await supabaseAdmin
