@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check, CheckCircle2, Circle, Sparkles } from "lucide-react";
 
 const tasks = [
@@ -37,16 +38,16 @@ export function Hero() {
           <p className="mt-4 italic text-sm text-muted-foreground">"Estudar pode ser leve."</p>
 
           <div className="mt-8 flex flex-wrap items-center gap-4">
-            <a
-              href="#cta"
+            <Link
+              to="/auth"
               className="inline-flex items-center gap-2 rounded-full bg-primary px-6 h-12 font-semibold text-primary-foreground shadow-lg shadow-primary/30 hover:brightness-105 transition"
             >
               Começar agora
               <ArrowRight className="h-4 w-4" />
-            </a>
-            <a href="#cta" className="text-sm font-medium text-foreground hover:underline underline-offset-4">
+            </Link>
+            <Link to="/auth" className="text-sm font-medium text-foreground hover:underline underline-offset-4">
               Já tenho conta
-            </a>
+            </Link>
           </div>
 
           <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">

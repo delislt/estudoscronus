@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+
 export function FinalCTA() {
   return (
     <section id="cta" className="py-24">
@@ -9,12 +11,12 @@ export function FinalCTA() {
           <p className="mt-4 text-muted-foreground">
             Bora deixar os estudos mais leves a partir de hoje.
           </p>
-          <a
-            href="#top"
+          <Link
+            to="/auth"
             className="mt-8 inline-flex items-center rounded-full bg-primary px-7 h-12 font-semibold text-primary-foreground shadow-lg shadow-primary/30 hover:brightness-105 transition"
           >
             Criar minha conta grátis
-          </a>
+          </Link>
         </div>
       </div>
     </section>
