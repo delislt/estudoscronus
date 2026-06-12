@@ -3,9 +3,11 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
-  Sparkles, CheckCircle2, Circle, Flame, Trophy, Bot, LogOut, CalendarDays, Target,
+  CheckCircle2, Circle, Flame, Trophy, CalendarDays, Target,
 } from "lucide-react";
 import { toISODate, xpForMinutes, levelFromXp } from "@/lib/scheduling";
+import { AppHeader } from "@/components/AppHeader";
+import { checkAndAwardAchievements } from "@/lib/achievements";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Painel — Study" }] }),
@@ -122,12 +124,18 @@ function Dashboard() {
     }
 
     toast.success(`+${gainedXp} XP 🎉`);
-    load();
-  }
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    navigate({ to: "/auth" });
+    // Achievement check
+    try {
+      const unlocked = await checkAndAwardAchievements(uid);
+      for (const a of unlocked) {
+        toast.success(`Conquista desbloqueada: ${a.title} 🏆`, { description: a.description });
+      }
+    } catch (e) {
+      console.error("achievement check failed", e);
+    }
+
+    load();
   }
 
   if (needsOnboarding) return null;
@@ -144,27 +152,8 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-app-gradient">
-      <header className="border-b border-border/40 bg-background/60 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/dashboard" className="inline-flex items-center gap-2 font-display font-bold">
-            <span className="h-8 w-8 rounded-xl bg-primary text-primary-foreground grid place-items-center">
-              <Sparkles className="h-4 w-4" />
-            </span>
-            Study
-          </Link>
-          <nav className="flex items-center gap-2 text-sm">
-            <Link to="/dashboard" className="px-3 py-2 rounded-full font-medium hover:bg-muted" activeProps={{ className: "px-3 py-2 rounded-full font-medium bg-muted" }}>
-              Painel
-            </Link>
-            <Link to="/tutor" className="px-3 py-2 rounded-full font-medium hover:bg-muted inline-flex items-center gap-1.5">
-              <Bot className="h-4 w-4" /> Tutora IA
-            </Link>
-            <button onClick={handleLogout} className="ml-2 p-2 rounded-full hover:bg-muted text-muted-foreground" aria-label="Sair">
-              <LogOut className="h-4 w-4" />
-            </button>
-          </nav>
-        </div>
-      </header>
+      <AppHeader />
+
 
       <main className="max-w-6xl mx-auto px-6 py-10 space-y-8">
         <section>

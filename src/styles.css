@@ -77,6 +77,40 @@
   --rose-soft: oklch(0.95 0.035 20);
 }
 
+.dark {
+  --background: oklch(0.18 0.03 255);
+  --foreground: oklch(0.96 0.01 240);
+
+  --card: oklch(0.22 0.035 255);
+  --card-foreground: oklch(0.96 0.01 240);
+  --popover: oklch(0.22 0.035 255);
+  --popover-foreground: oklch(0.96 0.01 240);
+
+  --primary: oklch(0.78 0.13 220);
+  --primary-foreground: oklch(0.18 0.04 255);
+
+  --secondary: oklch(0.26 0.03 255);
+  --secondary-foreground: oklch(0.96 0.01 240);
+
+  --muted: oklch(0.26 0.025 255);
+  --muted-foreground: oklch(0.72 0.03 240);
+
+  --accent: oklch(0.32 0.05 220);
+  --accent-foreground: oklch(0.96 0.01 240);
+
+  --destructive: oklch(0.62 0.22 27);
+  --destructive-foreground: oklch(0.98 0 0);
+
+  --border: oklch(0.3 0.025 255);
+  --input: oklch(0.3 0.025 255);
+  --ring: oklch(0.78 0.13 220);
+
+  --coral: oklch(0.72 0.14 25);
+  --coral-foreground: oklch(0.98 0.01 240);
+  --sky-soft: oklch(0.3 0.05 220);
+  --rose-soft: oklch(0.3 0.05 20);
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
@@ -95,7 +129,13 @@
 
 @utility bg-app-gradient {
   background-image:
-    radial-gradient(1200px 600px at 80% -10%, oklch(0.94 0.06 220 / 0.7), transparent 60%),
-    radial-gradient(900px 500px at -10% 10%, oklch(0.95 0.05 20 / 0.55), transparent 60%),
-    linear-gradient(180deg, oklch(0.99 0.01 240), oklch(0.98 0.02 220));
+    radial-gradient(1200px 600px at 80% -10%, color-mix(in oklab, var(--primary) 25%, transparent), transparent 60%),
+    radial-gradient(900px 500px at -10% 10%, color-mix(in oklab, var(--coral) 18%, transparent), transparent 60%),
+    linear-gradient(180deg, var(--background), color-mix(in oklab, var(--background) 92%, var(--primary)));
+}
+
+@utility no-scrollbar {
+  &::-webkit-scrollbar { display: none; }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

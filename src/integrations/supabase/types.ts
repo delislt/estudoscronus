@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          code: string
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          kind: string
+          threshold: number
+          title: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description: string
+          icon?: string
+          id?: string
+          kind: string
+          threshold?: number
+          title: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          kind?: string
+          threshold?: number
+          title?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           created_at: string
@@ -142,6 +175,7 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          leaderboard_opt_in: boolean
           onboarding_completed: boolean
           updated_at: string
         }
@@ -150,6 +184,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          leaderboard_opt_in?: boolean
           onboarding_completed?: boolean
           updated_at?: string
         }
@@ -158,6 +193,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          leaderboard_opt_in?: boolean
           onboarding_completed?: boolean
           updated_at?: string
         }
@@ -279,6 +315,35 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          id?: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_xp: {
         Row: {
           last_study_date: string | null
@@ -306,12 +371,90 @@ export type Database = {
         }
         Relationships: []
       }
+      video_lessons: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_min: number
+          id: string
+          level: string
+          subject: string
+          title: string
+          youtube_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_min?: number
+          id?: string
+          level?: string
+          subject: string
+          title: string
+          youtube_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_min?: number
+          id?: string
+          level?: string
+          subject?: string
+          title?: string
+          youtube_id?: string
+        }
+        Relationships: []
+      }
+      video_progress: {
+        Row: {
+          completed: boolean
+          favorited: boolean
+          id: string
+          updated_at: string
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          completed?: boolean
+          favorited?: boolean
+          id?: string
+          updated_at?: string
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          completed?: boolean
+          favorited?: boolean
+          id?: string
+          updated_at?: string
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_progress_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "video_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_leaderboard: {
+        Args: { _limit?: number }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          level: number
+          streak_days: number
+          user_id: string
+          xp: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
