@@ -29,6 +29,10 @@ export const Route = createFileRoute("/api/public/hooks/generate-daily-plans")({
           return new Response("Unauthorized", { status: 401 });
         }
 
+        const { createLovableAiGatewayProvider } = await import("@/lib/ai-gateway.server");
+        const { generateText } = await import("ai");
+
+
 
         // Find users who have onboarding done
         const { data: users } = await supabaseAdmin
