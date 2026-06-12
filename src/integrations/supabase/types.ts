@@ -201,6 +201,7 @@ export type Database = {
       }
       schedule_tasks: {
         Row: {
+          ai_reason: string | null
           completed: boolean
           completed_at: string | null
           created_at: string
@@ -208,11 +209,15 @@ export type Database = {
           id: string
           is_review: boolean
           scheduled_date: string
+          skipped: boolean
+          source: string
           subject_id: string | null
           title: string
+          topic: string | null
           user_id: string
         }
         Insert: {
+          ai_reason?: string | null
           completed?: boolean
           completed_at?: string | null
           created_at?: string
@@ -220,11 +225,15 @@ export type Database = {
           id?: string
           is_review?: boolean
           scheduled_date: string
+          skipped?: boolean
+          source?: string
           subject_id?: string | null
           title: string
+          topic?: string | null
           user_id: string
         }
         Update: {
+          ai_reason?: string | null
           completed?: boolean
           completed_at?: string | null
           created_at?: string
@@ -232,8 +241,11 @@ export type Database = {
           id?: string
           is_review?: boolean
           scheduled_date?: string
+          skipped?: boolean
+          source?: string
           subject_id?: string | null
           title?: string
+          topic?: string | null
           user_id?: string
         }
         Relationships: [
@@ -382,11 +394,13 @@ export type Database = {
           id: string
           level: string
           reason: string | null
+          resolved_title: string | null
           search_query: string
           subject: string
           title: string
           updated_at: string
           user_id: string
+          video_id: string | null
         }
         Insert: {
           channel_hint?: string | null
@@ -398,11 +412,13 @@ export type Database = {
           id?: string
           level?: string
           reason?: string | null
+          resolved_title?: string | null
           search_query: string
           subject: string
           title: string
           updated_at?: string
           user_id: string
+          video_id?: string | null
         }
         Update: {
           channel_hint?: string | null
@@ -414,11 +430,13 @@ export type Database = {
           id?: string
           level?: string
           reason?: string | null
+          resolved_title?: string | null
           search_query?: string
           subject?: string
           title?: string
           updated_at?: string
           user_id?: string
+          video_id?: string | null
         }
         Relationships: []
       }
