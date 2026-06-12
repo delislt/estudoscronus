@@ -371,73 +371,56 @@ export type Database = {
         }
         Relationships: []
       }
-      video_lessons: {
+      video_recommendations: {
         Row: {
+          channel_hint: string | null
+          completed: boolean
           created_at: string
           description: string | null
-          duration_min: number
-          id: string
-          level: string
-          subject: string
-          title: string
-          youtube_id: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          duration_min?: number
-          id?: string
-          level?: string
-          subject: string
-          title: string
-          youtube_id: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          duration_min?: number
-          id?: string
-          level?: string
-          subject?: string
-          title?: string
-          youtube_id?: string
-        }
-        Relationships: []
-      }
-      video_progress: {
-        Row: {
-          completed: boolean
+          duration_hint: string | null
           favorited: boolean
           id: string
+          level: string
+          reason: string | null
+          search_query: string
+          subject: string
+          title: string
           updated_at: string
           user_id: string
-          video_id: string
         }
         Insert: {
+          channel_hint?: string | null
           completed?: boolean
+          created_at?: string
+          description?: string | null
+          duration_hint?: string | null
           favorited?: boolean
           id?: string
+          level?: string
+          reason?: string | null
+          search_query: string
+          subject: string
+          title: string
           updated_at?: string
           user_id: string
-          video_id: string
         }
         Update: {
+          channel_hint?: string | null
           completed?: boolean
+          created_at?: string
+          description?: string | null
+          duration_hint?: string | null
           favorited?: boolean
           id?: string
+          level?: string
+          reason?: string | null
+          search_query?: string
+          subject?: string
+          title?: string
           updated_at?: string
           user_id?: string
-          video_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "video_progress_video_id_fkey"
-            columns: ["video_id"]
-            isOneToOne: false
-            referencedRelation: "video_lessons"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
