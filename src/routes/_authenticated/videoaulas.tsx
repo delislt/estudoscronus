@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
 import { generateVideoRecommendations } from "@/lib/video-recs.functions";
+import { resolveYoutubeVideo } from "@/lib/youtube.functions";
 import { Heart, CheckCircle2, ExternalLink, Filter, Sparkles, Loader2, Play as YoutubeIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -22,16 +23,22 @@ type Rec = {
   search_query: string;
   channel_hint: string | null;
   duration_hint: string | null;
+  video_id: string | null;
+  resolved_title: string | null;
   favorited: boolean;
   completed: boolean;
 };
 
 type Filter = "todas" | "favoritas" | "concluidas";
 
-function youtubeSearchUrl(q: string, channel?: string | null) {
-  const query = channel ? `${q} ${channel}` : q;
-  return `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+function openYoutube(videoId: string) {
+  const w = window.open(`https://www.youtube.com/watch?v=${videoId}`, "_blank", "noopener,noreferrer");
+  if (!w) {
+    // popup blocked — navigate top window
+    window.location.href = `https://www.youtube.com/watch?v=${videoId}`;
+  }
 }
+
 
 function VideoaulasPage() {
   const generate = useServerFn(generateVideoRecommendations);
