@@ -1,51 +1,128 @@
-## 1. Links do YouTube que não abrem
 
-Hoje o card aponta para `youtube.com/results?search_query=...` — uma página de busca, não um vídeo. Além disso, dentro do preview em iframe, `target="_blank"` às vezes é bloqueado.
+# Plano completo — Chronos
 
-**Solução:**
-- Criar `resolveYoutubeVideo` (server function) que, recebendo `search_query + channel_hint`, faz fetch em `https://www.youtube.com/results?...`, extrai o primeiro `videoId` via regex e devolve `{ videoId, title }`. Sem precisar de YouTube API key.
-- Adicionar coluna `video_id` em `video_recommendations` (migration).
-- Ao gerar recomendações, resolver os IDs em paralelo e salvar.
-- No card: trocar o `<a>` por um botão que faz `window.open('https://youtu.be/<id>', '_blank', 'noopener')` — funciona dentro do iframe do preview. Mostrar também a thumbnail (`https://i.ytimg.com/vi/<id>/hqdefault.jpg`).
-- Para recomendações antigas sem `video_id`, resolver on-demand no clique.
+Implementação dividida em 4 fases entregáveis. Cada fase é funcional sozinha; você pode aprovar tudo de uma vez e eu construo em sequência.
 
-## 2. Calendário de estudos diário com IA
+## Visão geral de novas rotas
 
-Já existe a tabela `schedule_tasks`. Falta a página, a geração diária por IA e o "nunca acaba".
+```
+/flashcards          → estudo SRS + criação manual/IA
+/flashcards/$deckId  → revisão diária do deck
+/resumos             → upload PDF/imagem → resumo/mapa mental/flashcards
+/simulados           → lista de simulados (ENEM/Fuvest/Unicamp/ITA/Concursos)
+/simulados/$id       → execução cronometrada
+/simulados/$id/resultado → relatório por assunto + TRI (ENEM)
+/redacao             → submissão e correção IA (5 competências ENEM)
+/foco                → Pomodoro + métricas de sessão
+/metas               → CRUD metas semanais + progresso
+/planejamento        → cronograma longo-prazo até a data da prova
+```
 
-**Backend**
-- Server function `generateDailyPlan({ date })`:
-  - Lê `onboarding` (objetivo, horas/dia, estilo), `subjects` (com dificuldade), `goals` ativas, últimos 7 dias de `study_sessions` (matérias menos vistas → prioridade).
-  - Chama Gemini 3 Flash via gateway pedindo 2–5 blocos para o dia (matéria, tópico, duração em min, descrição curta, justificativa). JSON via `generateText` + `extractJSON` (mesmo padrão do `video-recs.functions.ts` que funcionou).
-  - Insere em `schedule_tasks` com `scheduled_date = date`, sem duplicar (se o dia já tem tarefas geradas pela IA, pula).
-- Server function `ensureUpcomingPlan({ days = 7 })`: chamada pelo cliente quando entra na página — gera o que faltar dos próximos N dias.
-- Server route pública `POST /api/public/hooks/generate-daily-plans`:
-  - Roda diariamente via `pg_cron + pg_net`, autenticada com `apikey` (anon).
-  - Para cada usuário ativo (com onboarding feito), gera plano para `hoje + 7` se faltar. Assim a esteira nunca acaba.
-- Migration: adicionar `source text default 'ai'` e `ai_reason text` em `schedule_tasks` para distinguir blocos gerados por IA e mostrar o "por quê". Garantir GRANT/RLS já existentes.
+Tutor (`/tutor`) ganha: seletor de nível (10 anos / Médio / Vestibular / Universitário), entrada por voz (STT), saída por voz (TTS) e upload de imagem (modo câmera) para resolver exercícios.
 
-**Frontend — `/calendario`**
-- Header padrão `AppHeader`.
-- Visão semanal (7 colunas) + seletor para mês. Card por dia mostra blocos: matéria, tópico, duração, status (check / pular).
-- Ações: marcar concluído (escreve em `study_sessions` e dispara achievement check), pular, regenerar dia (chama `generateDailyPlan` forçando refresh do dia).
-- Ao montar: chama `ensureUpcomingPlan({ days: 7 })` para garantir que o usuário sempre vê a semana à frente.
-- Estado vazio: CTA "Gerar minha semana com IA".
-- Link no `AppHeader` para `/calendario`.
+---
 
-## Arquivos
+## Fase 1 — Essenciais de estudo
 
-- `supabase/migrations/<ts>_calendar_videoid.sql` — adiciona `video_id` em `video_recommendations`, `source` e `ai_reason` em `schedule_tasks`.
-- `src/lib/youtube.functions.ts` — `resolveYoutubeVideo`.
-- `src/lib/calendar.functions.ts` — `generateDailyPlan`, `ensureUpcomingPlan`, `regenerateDay`.
-- `src/lib/video-recs.functions.ts` — resolve `video_id` ao gerar.
-- `src/routes/_authenticated/videoaulas.tsx` — usa `video_id`, `window.open`, thumbnail.
-- `src/routes/_authenticated/calendario.tsx` — nova página.
-- `src/routes/api/public/hooks/generate-daily-plans.ts` — endpoint cron.
-- `src/components/AppHeader.tsx` — adiciona "Calendário".
-- SQL `cron.schedule` (via insert tool, não migration) para rodar diariamente às 03:00.
+**Flashcards + SRS (algoritmo SM-2 Anki-like)**
+- Tabelas: `decks`, `flashcards (front, back, ease, interval, due_at, reps, lapses)`, `flashcard_reviews`.
+- Server fns: `createDeck`, `generateFlashcardsFromText` (IA), `getDueCards`, `reviewCard` (Again/Hard/Good/Easy → recalcula ease/interval).
+- Job diário: detecta cards com lapses altos e sugere reforço.
 
-## Pontos de atenção
+**Resumos automáticos (upload PDF/slides)**
+- Storage bucket `documents` (privado).
+- Tabela `documents`, `summaries (type: short|full|mindmap|quick_review|flashcards)`.
+- Server fn `processDocument`: extrai texto (pdf-parse no servidor), envia para Gemini, gera 4 formatos + opção "criar deck de flashcards".
 
-- O scrape do YouTube depende do HTML público; se mudar o regex, links voltam ao fallback de busca. Logamos o falhado e seguimos.
-- A geração de plano pode custar créditos da Lovable AI; o cron está limitado a usuários com onboarding completo e a só completar o que falta.
-- `schedule_tasks` já tem RLS por `user_id`; o endpoint cron usa `supabaseAdmin` e itera por usuário explicitamente.
+**Modo Foco / Pomodoro**
+- Rota `/foco` cliente (sem backend pesado). Timer 25/5 configurável, sons, modo "não perturbe".
+- Cada sessão completa grava em `study_sessions` (já existe) e dá XP.
+
+**Metas semanais UI**
+- Rota `/metas` com CRUD sobre tabela `goals` (já existe). Barra de progresso semanal por matéria + horas alvo.
+
+**Tutor multi-nível**
+- Adiciona selector no `/tutor` (4 níveis). Injeta no system prompt: vocabulário, profundidade, analogias.
+
+---
+
+## Fase 2 — Vestibular
+
+**Simulados com banco enem.dev + IA**
+- Tabelas: `exam_banks`, `questions (source, year, subject, statement, alternatives, correct, difficulty, discrimination)`, `exam_attempts`, `exam_answers`.
+- Importador one-shot do dataset enem.dev (server fn admin que baixa JSON de https://enem.dev/api e popula `questions`).
+- Para Fuvest/Unicamp/ITA/Concursos: IA gera questões inéditas marcadas como `source='ai'` (a partir do estilo das instituições).
+- Simulado adaptativo: próximo item escolhido pelo desempenho (IRT 2PL simplificado).
+- Relatório por assunto e por habilidade.
+
+**TRI ENEM**
+- Função `calculateTRI(answers, questions)` com 3 parâmetros (a/b/c) usando MLE/EAP simplificado. Compara com nota bruta.
+
+**Correção de redação**
+- Rota `/redacao`. Textarea + opção upload foto. IA Gemini avalia 5 competências ENEM (0–200 cada), devolve nota total, justificativa por competência, sugestões e versão melhorada.
+- Tabela `essays`.
+
+**Planejamento automático vestibular**
+- Onboarding pergunta data da prova-alvo e matérias prioritárias.
+- Server fn `generateLongTermPlan` cria blocos semanais até a data: revisão espaçada das matérias fracas, simulados mensais, redação semanal. Grava em `schedule_tasks` (existe).
+
+---
+
+## Fase 3 — Multimodal
+
+**Tutor por voz**
+- Conector ElevenLabs (Realtime STT `scribe_v2_realtime` + TTS) já documentado.
+- Botão microfone no `/tutor`: streaming bidirecional. Texto transcrito vira mensagem; resposta sintetizada toca em paralelo ao streaming de texto.
+
+**Modo câmera (foto do exercício)**
+- Componente `<CameraInput />` (input file capture=environment) no `/tutor`. Imagem vai como `image_url` no Gemini, que lê o enunciado e explica passo-a-passo.
+
+**Leitura de PDF com explicação em tempo real**
+- Em `/resumos/$id`, viewer PDF (`react-pdf`) com sidebar de chat IA contextualizada na página atual: ao trocar de página, system message inclui texto extraído daquela página.
+
+---
+
+## Fase 4 — Polimento gamificação
+
+- **Moeda virtual (Coins)**: coluna `coins` em `user_xp`. Ações ganham (revisão SRS, sessão foco, simulado). Loja simples: temas, avatares, "dica grátis no simulado".
+- **Ranking entre amigos**: tabela `friendships (user_id, friend_id, status)`. `/ranking` ganha aba "Amigos" filtrando leaderboard.
+- **Detecção de esquecimento**: job diário marca subjects com taxa de erro recente alta e cria recomendação no dashboard.
+
+---
+
+## Detalhes técnicos
+
+**Stack**
+- Tudo via `createServerFn` (TanStack Start), exceto webhooks/cron em `/api/public/*`.
+- IA via Lovable AI Gateway (`google/gemini-3-flash-preview` padrão; `gemini-3-pro` para correção de redação e geração de questões; `gemini-3-flash-image-preview` opcional para mapa mental).
+- Voz via conector ElevenLabs (STT + TTS).
+- PDFs: `pdf-parse` no servidor para texto; `react-pdf` no cliente para viewer.
+- Storage: bucket privado `documents` com RLS por `auth.uid()`.
+
+**Migrações novas (resumo)**
+- Fase 1: `decks`, `flashcards`, `flashcard_reviews`, `documents`, `summaries` (+ bucket `documents`).
+- Fase 2: `exam_banks`, `questions`, `exam_attempts`, `exam_answers`, `essays`.
+- Fase 4: `friendships`, coluna `coins` em `user_xp`, `shop_items`, `user_inventory`.
+
+Toda tabela: GRANTs + RLS escopado por `auth.uid()`.
+
+**Cron novos**
+- Diário 04:00: detector de esquecimento + reforço de flashcards (já existe `generate-daily-plans`).
+
+**Custo de IA estimado** — alto por causa de simulados gerados, redação, voz e visão. Recomendo monitorar créditos.
+
+---
+
+## Ordem de entrega proposta
+
+Vou implementar em ondas, cada onda em uma mensagem para você poder testar incrementalmente:
+
+1. **Onda A**: Migrações Fase 1 + 2 + 4 (uma migration grande, aprovação única).
+2. **Onda B**: Flashcards SRS + Metas semanais UI + Tutor multi-nível + Foco/Pomodoro.
+3. **Onda C**: Upload de documentos + Resumos automáticos + Leitura PDF em tempo real.
+4. **Onda D**: Importador enem.dev + Simulados + TRI + Relatórios.
+5. **Onda E**: Redação IA + Planejamento longo-prazo.
+6. **Onda F**: Tutor por voz (ElevenLabs) + Modo câmera.
+7. **Onda G**: Moeda + Loja + Amigos + Detector de esquecimento.
+
+Aprove para eu começar pela Onda A.

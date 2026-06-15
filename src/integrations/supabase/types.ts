@@ -127,6 +127,380 @@ export type Database = {
         }
         Relationships: []
       }
+      decks: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          subject_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          subject_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          subject_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "decks_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          extracted_text: string | null
+          id: string
+          mime_type: string | null
+          page_count: number | null
+          size_bytes: number | null
+          status: string
+          storage_path: string
+          subject_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          extracted_text?: string | null
+          id?: string
+          mime_type?: string | null
+          page_count?: number | null
+          size_bytes?: number | null
+          status?: string
+          storage_path: string
+          subject_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          extracted_text?: string | null
+          id?: string
+          mime_type?: string | null
+          page_count?: number | null
+          size_bytes?: number | null
+          status?: string
+          storage_path?: string
+          subject_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      essays: {
+        Row: {
+          body: string
+          c1: number | null
+          c2: number | null
+          c3: number | null
+          c4: number | null
+          c5: number | null
+          created_at: string
+          feedback: Json | null
+          id: string
+          model: string | null
+          prompt: string
+          status: string
+          total: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          c1?: number | null
+          c2?: number | null
+          c3?: number | null
+          c4?: number | null
+          c5?: number | null
+          created_at?: string
+          feedback?: Json | null
+          id?: string
+          model?: string | null
+          prompt: string
+          status?: string
+          total?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          c1?: number | null
+          c2?: number | null
+          c3?: number | null
+          c4?: number | null
+          c5?: number | null
+          created_at?: string
+          feedback?: Json | null
+          id?: string
+          model?: string | null
+          prompt?: string
+          status?: string
+          total?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      exam_answers: {
+        Row: {
+          answered_at: string
+          attempt_id: string
+          chosen_label: string | null
+          id: string
+          is_correct: boolean | null
+          question_id: string
+          time_ms: number | null
+          user_id: string
+        }
+        Insert: {
+          answered_at?: string
+          attempt_id: string
+          chosen_label?: string | null
+          id?: string
+          is_correct?: boolean | null
+          question_id: string
+          time_ms?: number | null
+          user_id: string
+        }
+        Update: {
+          answered_at?: string
+          attempt_id?: string
+          chosen_label?: string | null
+          id?: string
+          is_correct?: boolean | null
+          question_id?: string
+          time_ms?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_answers_attempt_id_fkey"
+            columns: ["attempt_id"]
+            isOneToOne: false
+            referencedRelation: "exam_attempts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_attempts: {
+        Row: {
+          correct_count: number | null
+          finished_at: string | null
+          id: string
+          per_subject: Json | null
+          question_ids: string[]
+          raw_score: number | null
+          source: string
+          started_at: string
+          status: string
+          subjects: string[]
+          total_questions: number
+          tri_score: number | null
+          user_id: string
+        }
+        Insert: {
+          correct_count?: number | null
+          finished_at?: string | null
+          id?: string
+          per_subject?: Json | null
+          question_ids: string[]
+          raw_score?: number | null
+          source: string
+          started_at?: string
+          status?: string
+          subjects?: string[]
+          total_questions: number
+          tri_score?: number | null
+          user_id: string
+        }
+        Update: {
+          correct_count?: number | null
+          finished_at?: string | null
+          id?: string
+          per_subject?: Json | null
+          question_ids?: string[]
+          raw_score?: number | null
+          source?: string
+          started_at?: string
+          status?: string
+          subjects?: string[]
+          total_questions?: number
+          tri_score?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      flashcard_reviews: {
+        Row: {
+          created_at: string
+          flashcard_id: string
+          id: string
+          new_ease: number | null
+          new_interval: number | null
+          prev_ease: number | null
+          prev_interval: number | null
+          rating: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          flashcard_id: string
+          id?: string
+          new_ease?: number | null
+          new_interval?: number | null
+          prev_ease?: number | null
+          prev_interval?: number | null
+          rating: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          flashcard_id?: string
+          id?: string
+          new_ease?: number | null
+          new_interval?: number | null
+          prev_ease?: number | null
+          prev_interval?: number | null
+          rating?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcard_reviews_flashcard_id_fkey"
+            columns: ["flashcard_id"]
+            isOneToOne: false
+            referencedRelation: "flashcards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flashcards: {
+        Row: {
+          back: string
+          created_at: string
+          deck_id: string
+          due_at: string
+          ease: number
+          front: string
+          id: string
+          interval_days: number
+          lapses: number
+          last_reviewed_at: string | null
+          reps: number
+          source: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          back: string
+          created_at?: string
+          deck_id: string
+          due_at?: string
+          ease?: number
+          front: string
+          id?: string
+          interval_days?: number
+          lapses?: number
+          last_reviewed_at?: string | null
+          reps?: number
+          source?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          back?: string
+          created_at?: string
+          deck_id?: string
+          due_at?: string
+          ease?: number
+          front?: string
+          id?: string
+          interval_days?: number
+          lapses?: number
+          last_reviewed_at?: string | null
+          reps?: number
+          source?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcards_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "decks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      friendships: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       goals: {
         Row: {
           created_at: string
@@ -165,6 +539,8 @@ export type Database = {
           learning_style: string
           objective: string
           study_days: number[]
+          target_exam: string | null
+          target_exam_date: string | null
           updated_at: string
           user_id: string
         }
@@ -175,6 +551,8 @@ export type Database = {
           learning_style?: string
           objective: string
           study_days?: number[]
+          target_exam?: string | null
+          target_exam_date?: string | null
           updated_at?: string
           user_id: string
         }
@@ -185,6 +563,8 @@ export type Database = {
           learning_style?: string
           objective?: string
           study_days?: number[]
+          target_exam?: string | null
+          target_exam_date?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -217,6 +597,57 @@ export type Database = {
           leaderboard_opt_in?: boolean
           onboarding_completed?: boolean
           updated_at?: string
+        }
+        Relationships: []
+      }
+      questions: {
+        Row: {
+          alternatives: Json
+          correct_label: string
+          created_at: string
+          difficulty: number | null
+          discrimination: number | null
+          exam_year: number | null
+          explanation: string | null
+          external_id: string | null
+          guessing: number | null
+          id: string
+          source: string
+          statement: string
+          subject: string
+          topic: string | null
+        }
+        Insert: {
+          alternatives: Json
+          correct_label: string
+          created_at?: string
+          difficulty?: number | null
+          discrimination?: number | null
+          exam_year?: number | null
+          explanation?: string | null
+          external_id?: string | null
+          guessing?: number | null
+          id?: string
+          source: string
+          statement: string
+          subject: string
+          topic?: string | null
+        }
+        Update: {
+          alternatives?: Json
+          correct_label?: string
+          created_at?: string
+          difficulty?: number | null
+          discrimination?: number | null
+          exam_year?: number | null
+          explanation?: string | null
+          external_id?: string | null
+          guessing?: number | null
+          id?: string
+          source?: string
+          statement?: string
+          subject?: string
+          topic?: string | null
         }
         Relationships: []
       }
@@ -278,6 +709,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      shop_items: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          id: string
+          kind: string
+          metadata: Json | null
+          name: string
+          price: number
+          slug: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind: string
+          metadata?: Json | null
+          name: string
+          price: number
+          slug: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          metadata?: Json | null
+          name?: string
+          price?: number
+          slug?: string
+        }
+        Relationships: []
       }
       study_sessions: {
         Row: {
@@ -348,6 +815,41 @@ export type Database = {
         }
         Relationships: []
       }
+      summaries: {
+        Row: {
+          content: Json
+          created_at: string
+          document_id: string | null
+          id: string
+          kind: string
+          user_id: string
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          kind: string
+          user_id: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          kind?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "summaries_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_achievements: {
         Row: {
           achievement_id: string
@@ -377,8 +879,62 @@ export type Database = {
           },
         ]
       }
+      user_inventory: {
+        Row: {
+          acquired_at: string
+          equipped: boolean
+          id: string
+          item_id: string
+          user_id: string
+        }
+        Insert: {
+          acquired_at?: string
+          equipped?: boolean
+          id?: string
+          item_id: string
+          user_id: string
+        }
+        Update: {
+          acquired_at?: string
+          equipped?: boolean
+          id?: string
+          item_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_inventory_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "shop_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_xp: {
         Row: {
+          coins: number
           last_study_date: string | null
           level: number
           streak_days: number
@@ -387,6 +943,7 @@ export type Database = {
           xp: number
         }
         Insert: {
+          coins?: number
           last_study_date?: string | null
           level?: number
           streak_days?: number
@@ -395,6 +952,7 @@ export type Database = {
           xp?: number
         }
         Update: {
+          coins?: number
           last_study_date?: string | null
           level?: number
           streak_days?: number
@@ -477,9 +1035,16 @@ export type Database = {
           xp: number
         }[]
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -606,6 +1171,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
