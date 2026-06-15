@@ -16,16 +16,19 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedVideoaulasRouteImport } from './routes/_authenticated/videoaulas'
 import { Route as AuthenticatedTutorRouteImport } from './routes/_authenticated/tutor'
 import { Route as AuthenticatedSimuladosRouteImport } from './routes/_authenticated/simulados'
+import { Route as AuthenticatedRevisarRouteImport } from './routes/_authenticated/revisar'
 import { Route as AuthenticatedResumosRouteImport } from './routes/_authenticated/resumos'
 import { Route as AuthenticatedRedacaoRouteImport } from './routes/_authenticated/redacao'
 import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticated/ranking'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedMetasRouteImport } from './routes/_authenticated/metas'
+import { Route as AuthenticatedLojaRouteImport } from './routes/_authenticated/loja'
 import { Route as AuthenticatedFocoRouteImport } from './routes/_authenticated/foco'
 import { Route as AuthenticatedFlashcardsRouteImport } from './routes/_authenticated/flashcards'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedConquistasRouteImport } from './routes/_authenticated/conquistas'
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
+import { Route as AuthenticatedAmigosRouteImport } from './routes/_authenticated/amigos'
 import { Route as AuthenticatedTutorIndexRouteImport } from './routes/_authenticated/tutor.index'
 import { Route as AuthenticatedTutorThreadIdRouteImport } from './routes/_authenticated/tutor.$threadId'
 import { Route as AuthenticatedSimuladosAttemptIdRouteImport } from './routes/_authenticated/simulados.$attemptId'
@@ -68,6 +71,11 @@ const AuthenticatedSimuladosRoute = AuthenticatedSimuladosRouteImport.update({
   path: '/simulados',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRevisarRoute = AuthenticatedRevisarRouteImport.update({
+  id: '/revisar',
+  path: '/revisar',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedResumosRoute = AuthenticatedResumosRouteImport.update({
   id: '/resumos',
   path: '/resumos',
@@ -93,6 +101,11 @@ const AuthenticatedMetasRoute = AuthenticatedMetasRouteImport.update({
   path: '/metas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedLojaRoute = AuthenticatedLojaRouteImport.update({
+  id: '/loja',
+  path: '/loja',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedFocoRoute = AuthenticatedFocoRouteImport.update({
   id: '/foco',
   path: '/foco',
@@ -116,6 +129,11 @@ const AuthenticatedConquistasRoute = AuthenticatedConquistasRouteImport.update({
 const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
   id: '/calendario',
   path: '/calendario',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAmigosRoute = AuthenticatedAmigosRouteImport.update({
+  id: '/amigos',
+  path: '/amigos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedTutorIndexRoute = AuthenticatedTutorIndexRouteImport.update({
@@ -163,16 +181,19 @@ const AuthenticatedSimuladosAttemptIdResultadoRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/amigos': typeof AuthenticatedAmigosRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/conquistas': typeof AuthenticatedConquistasRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/flashcards': typeof AuthenticatedFlashcardsRouteWithChildren
   '/foco': typeof AuthenticatedFocoRoute
+  '/loja': typeof AuthenticatedLojaRoute
   '/metas': typeof AuthenticatedMetasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ranking': typeof AuthenticatedRankingRoute
   '/redacao': typeof AuthenticatedRedacaoRoute
   '/resumos': typeof AuthenticatedResumosRouteWithChildren
+  '/revisar': typeof AuthenticatedRevisarRoute
   '/simulados': typeof AuthenticatedSimuladosRouteWithChildren
   '/tutor': typeof AuthenticatedTutorRouteWithChildren
   '/videoaulas': typeof AuthenticatedVideoaulasRoute
@@ -188,16 +209,19 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/amigos': typeof AuthenticatedAmigosRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/conquistas': typeof AuthenticatedConquistasRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/flashcards': typeof AuthenticatedFlashcardsRouteWithChildren
   '/foco': typeof AuthenticatedFocoRoute
+  '/loja': typeof AuthenticatedLojaRoute
   '/metas': typeof AuthenticatedMetasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ranking': typeof AuthenticatedRankingRoute
   '/redacao': typeof AuthenticatedRedacaoRoute
   '/resumos': typeof AuthenticatedResumosRouteWithChildren
+  '/revisar': typeof AuthenticatedRevisarRoute
   '/simulados': typeof AuthenticatedSimuladosRouteWithChildren
   '/videoaulas': typeof AuthenticatedVideoaulasRoute
   '/api/chat': typeof ApiChatRoute
@@ -214,16 +238,19 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/amigos': typeof AuthenticatedAmigosRoute
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/conquistas': typeof AuthenticatedConquistasRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/flashcards': typeof AuthenticatedFlashcardsRouteWithChildren
   '/_authenticated/foco': typeof AuthenticatedFocoRoute
+  '/_authenticated/loja': typeof AuthenticatedLojaRoute
   '/_authenticated/metas': typeof AuthenticatedMetasRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/ranking': typeof AuthenticatedRankingRoute
   '/_authenticated/redacao': typeof AuthenticatedRedacaoRoute
   '/_authenticated/resumos': typeof AuthenticatedResumosRouteWithChildren
+  '/_authenticated/revisar': typeof AuthenticatedRevisarRoute
   '/_authenticated/simulados': typeof AuthenticatedSimuladosRouteWithChildren
   '/_authenticated/tutor': typeof AuthenticatedTutorRouteWithChildren
   '/_authenticated/videoaulas': typeof AuthenticatedVideoaulasRoute
@@ -241,16 +268,19 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/amigos'
     | '/calendario'
     | '/conquistas'
     | '/dashboard'
     | '/flashcards'
     | '/foco'
+    | '/loja'
     | '/metas'
     | '/onboarding'
     | '/ranking'
     | '/redacao'
     | '/resumos'
+    | '/revisar'
     | '/simulados'
     | '/tutor'
     | '/videoaulas'
@@ -266,16 +296,19 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/amigos'
     | '/calendario'
     | '/conquistas'
     | '/dashboard'
     | '/flashcards'
     | '/foco'
+    | '/loja'
     | '/metas'
     | '/onboarding'
     | '/ranking'
     | '/redacao'
     | '/resumos'
+    | '/revisar'
     | '/simulados'
     | '/videoaulas'
     | '/api/chat'
@@ -291,16 +324,19 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/amigos'
     | '/_authenticated/calendario'
     | '/_authenticated/conquistas'
     | '/_authenticated/dashboard'
     | '/_authenticated/flashcards'
     | '/_authenticated/foco'
+    | '/_authenticated/loja'
     | '/_authenticated/metas'
     | '/_authenticated/onboarding'
     | '/_authenticated/ranking'
     | '/_authenticated/redacao'
     | '/_authenticated/resumos'
+    | '/_authenticated/revisar'
     | '/_authenticated/simulados'
     | '/_authenticated/tutor'
     | '/_authenticated/videoaulas'
@@ -373,6 +409,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSimuladosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/revisar': {
+      id: '/_authenticated/revisar'
+      path: '/revisar'
+      fullPath: '/revisar'
+      preLoaderRoute: typeof AuthenticatedRevisarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/resumos': {
       id: '/_authenticated/resumos'
       path: '/resumos'
@@ -408,6 +451,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMetasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/loja': {
+      id: '/_authenticated/loja'
+      path: '/loja'
+      fullPath: '/loja'
+      preLoaderRoute: typeof AuthenticatedLojaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/foco': {
       id: '/_authenticated/foco'
       path: '/foco'
@@ -441,6 +491,13 @@ declare module '@tanstack/react-router' {
       path: '/calendario'
       fullPath: '/calendario'
       preLoaderRoute: typeof AuthenticatedCalendarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/amigos': {
+      id: '/_authenticated/amigos'
+      path: '/amigos'
+      fullPath: '/amigos'
+      preLoaderRoute: typeof AuthenticatedAmigosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/tutor/': {
@@ -564,32 +621,38 @@ const AuthenticatedTutorRouteWithChildren =
   AuthenticatedTutorRoute._addFileChildren(AuthenticatedTutorRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAmigosRoute: typeof AuthenticatedAmigosRoute
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedConquistasRoute: typeof AuthenticatedConquistasRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFlashcardsRoute: typeof AuthenticatedFlashcardsRouteWithChildren
   AuthenticatedFocoRoute: typeof AuthenticatedFocoRoute
+  AuthenticatedLojaRoute: typeof AuthenticatedLojaRoute
   AuthenticatedMetasRoute: typeof AuthenticatedMetasRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedRankingRoute: typeof AuthenticatedRankingRoute
   AuthenticatedRedacaoRoute: typeof AuthenticatedRedacaoRoute
   AuthenticatedResumosRoute: typeof AuthenticatedResumosRouteWithChildren
+  AuthenticatedRevisarRoute: typeof AuthenticatedRevisarRoute
   AuthenticatedSimuladosRoute: typeof AuthenticatedSimuladosRouteWithChildren
   AuthenticatedTutorRoute: typeof AuthenticatedTutorRouteWithChildren
   AuthenticatedVideoaulasRoute: typeof AuthenticatedVideoaulasRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAmigosRoute: AuthenticatedAmigosRoute,
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedConquistasRoute: AuthenticatedConquistasRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFlashcardsRoute: AuthenticatedFlashcardsRouteWithChildren,
   AuthenticatedFocoRoute: AuthenticatedFocoRoute,
+  AuthenticatedLojaRoute: AuthenticatedLojaRoute,
   AuthenticatedMetasRoute: AuthenticatedMetasRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedRankingRoute: AuthenticatedRankingRoute,
   AuthenticatedRedacaoRoute: AuthenticatedRedacaoRoute,
   AuthenticatedResumosRoute: AuthenticatedResumosRouteWithChildren,
+  AuthenticatedRevisarRoute: AuthenticatedRevisarRoute,
   AuthenticatedSimuladosRoute: AuthenticatedSimuladosRouteWithChildren,
   AuthenticatedTutorRoute: AuthenticatedTutorRouteWithChildren,
   AuthenticatedVideoaulasRoute: AuthenticatedVideoaulasRoute,
