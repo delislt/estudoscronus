@@ -250,7 +250,8 @@ export const finishAttempt = createServerFn({ method: "POST" })
       .eq("user_id", userId)
       .single();
     if (xpRow) {
-      await supabase
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
         .from("user_xp")
         .update({
           xp: (xpRow.xp ?? 0) + xpGain,
