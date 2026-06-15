@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedVideoaulasRouteImport } from './routes/_authenticated/videoaulas'
 import { Route as AuthenticatedTutorRouteImport } from './routes/_authenticated/tutor'
+import { Route as AuthenticatedResumosRouteImport } from './routes/_authenticated/resumos'
 import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticated/ranking'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedMetasRouteImport } from './routes/_authenticated/metas'
@@ -25,6 +26,7 @@ import { Route as AuthenticatedConquistasRouteImport } from './routes/_authentic
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
 import { Route as AuthenticatedTutorIndexRouteImport } from './routes/_authenticated/tutor.index'
 import { Route as AuthenticatedTutorThreadIdRouteImport } from './routes/_authenticated/tutor.$threadId'
+import { Route as AuthenticatedResumosDocumentIdRouteImport } from './routes/_authenticated/resumos.$documentId'
 import { Route as AuthenticatedFlashcardsDeckIdRouteImport } from './routes/_authenticated/flashcards.$deckId'
 import { Route as ApiPublicHooksGenerateDailyPlansRouteImport } from './routes/api/public/hooks/generate-daily-plans'
 
@@ -55,6 +57,11 @@ const AuthenticatedVideoaulasRoute = AuthenticatedVideoaulasRouteImport.update({
 const AuthenticatedTutorRoute = AuthenticatedTutorRouteImport.update({
   id: '/tutor',
   path: '/tutor',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedResumosRoute = AuthenticatedResumosRouteImport.update({
+  id: '/resumos',
+  path: '/resumos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRankingRoute = AuthenticatedRankingRouteImport.update({
@@ -108,6 +115,12 @@ const AuthenticatedTutorThreadIdRoute =
     path: '/$threadId',
     getParentRoute: () => AuthenticatedTutorRoute,
   } as any)
+const AuthenticatedResumosDocumentIdRoute =
+  AuthenticatedResumosDocumentIdRouteImport.update({
+    id: '/$documentId',
+    path: '/$documentId',
+    getParentRoute: () => AuthenticatedResumosRoute,
+  } as any)
 const AuthenticatedFlashcardsDeckIdRoute =
   AuthenticatedFlashcardsDeckIdRouteImport.update({
     id: '/$deckId',
@@ -132,10 +145,12 @@ export interface FileRoutesByFullPath {
   '/metas': typeof AuthenticatedMetasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ranking': typeof AuthenticatedRankingRoute
+  '/resumos': typeof AuthenticatedResumosRouteWithChildren
   '/tutor': typeof AuthenticatedTutorRouteWithChildren
   '/videoaulas': typeof AuthenticatedVideoaulasRoute
   '/api/chat': typeof ApiChatRoute
   '/flashcards/$deckId': typeof AuthenticatedFlashcardsDeckIdRoute
+  '/resumos/$documentId': typeof AuthenticatedResumosDocumentIdRoute
   '/tutor/$threadId': typeof AuthenticatedTutorThreadIdRoute
   '/tutor/': typeof AuthenticatedTutorIndexRoute
   '/api/public/hooks/generate-daily-plans': typeof ApiPublicHooksGenerateDailyPlansRoute
@@ -151,9 +166,11 @@ export interface FileRoutesByTo {
   '/metas': typeof AuthenticatedMetasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ranking': typeof AuthenticatedRankingRoute
+  '/resumos': typeof AuthenticatedResumosRouteWithChildren
   '/videoaulas': typeof AuthenticatedVideoaulasRoute
   '/api/chat': typeof ApiChatRoute
   '/flashcards/$deckId': typeof AuthenticatedFlashcardsDeckIdRoute
+  '/resumos/$documentId': typeof AuthenticatedResumosDocumentIdRoute
   '/tutor/$threadId': typeof AuthenticatedTutorThreadIdRoute
   '/tutor': typeof AuthenticatedTutorIndexRoute
   '/api/public/hooks/generate-daily-plans': typeof ApiPublicHooksGenerateDailyPlansRoute
@@ -171,10 +188,12 @@ export interface FileRoutesById {
   '/_authenticated/metas': typeof AuthenticatedMetasRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/ranking': typeof AuthenticatedRankingRoute
+  '/_authenticated/resumos': typeof AuthenticatedResumosRouteWithChildren
   '/_authenticated/tutor': typeof AuthenticatedTutorRouteWithChildren
   '/_authenticated/videoaulas': typeof AuthenticatedVideoaulasRoute
   '/api/chat': typeof ApiChatRoute
   '/_authenticated/flashcards/$deckId': typeof AuthenticatedFlashcardsDeckIdRoute
+  '/_authenticated/resumos/$documentId': typeof AuthenticatedResumosDocumentIdRoute
   '/_authenticated/tutor/$threadId': typeof AuthenticatedTutorThreadIdRoute
   '/_authenticated/tutor/': typeof AuthenticatedTutorIndexRoute
   '/api/public/hooks/generate-daily-plans': typeof ApiPublicHooksGenerateDailyPlansRoute
@@ -192,10 +211,12 @@ export interface FileRouteTypes {
     | '/metas'
     | '/onboarding'
     | '/ranking'
+    | '/resumos'
     | '/tutor'
     | '/videoaulas'
     | '/api/chat'
     | '/flashcards/$deckId'
+    | '/resumos/$documentId'
     | '/tutor/$threadId'
     | '/tutor/'
     | '/api/public/hooks/generate-daily-plans'
@@ -211,9 +232,11 @@ export interface FileRouteTypes {
     | '/metas'
     | '/onboarding'
     | '/ranking'
+    | '/resumos'
     | '/videoaulas'
     | '/api/chat'
     | '/flashcards/$deckId'
+    | '/resumos/$documentId'
     | '/tutor/$threadId'
     | '/tutor'
     | '/api/public/hooks/generate-daily-plans'
@@ -230,10 +253,12 @@ export interface FileRouteTypes {
     | '/_authenticated/metas'
     | '/_authenticated/onboarding'
     | '/_authenticated/ranking'
+    | '/_authenticated/resumos'
     | '/_authenticated/tutor'
     | '/_authenticated/videoaulas'
     | '/api/chat'
     | '/_authenticated/flashcards/$deckId'
+    | '/_authenticated/resumos/$documentId'
     | '/_authenticated/tutor/$threadId'
     | '/_authenticated/tutor/'
     | '/api/public/hooks/generate-daily-plans'
@@ -289,6 +314,13 @@ declare module '@tanstack/react-router' {
       path: '/tutor'
       fullPath: '/tutor'
       preLoaderRoute: typeof AuthenticatedTutorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/resumos': {
+      id: '/_authenticated/resumos'
+      path: '/resumos'
+      fullPath: '/resumos'
+      preLoaderRoute: typeof AuthenticatedResumosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/ranking': {
@@ -361,6 +393,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTutorThreadIdRouteImport
       parentRoute: typeof AuthenticatedTutorRoute
     }
+    '/_authenticated/resumos/$documentId': {
+      id: '/_authenticated/resumos/$documentId'
+      path: '/$documentId'
+      fullPath: '/resumos/$documentId'
+      preLoaderRoute: typeof AuthenticatedResumosDocumentIdRouteImport
+      parentRoute: typeof AuthenticatedResumosRoute
+    }
     '/_authenticated/flashcards/$deckId': {
       id: '/_authenticated/flashcards/$deckId'
       path: '/$deckId'
@@ -392,6 +431,17 @@ const AuthenticatedFlashcardsRouteWithChildren =
     AuthenticatedFlashcardsRouteChildren,
   )
 
+interface AuthenticatedResumosRouteChildren {
+  AuthenticatedResumosDocumentIdRoute: typeof AuthenticatedResumosDocumentIdRoute
+}
+
+const AuthenticatedResumosRouteChildren: AuthenticatedResumosRouteChildren = {
+  AuthenticatedResumosDocumentIdRoute: AuthenticatedResumosDocumentIdRoute,
+}
+
+const AuthenticatedResumosRouteWithChildren =
+  AuthenticatedResumosRoute._addFileChildren(AuthenticatedResumosRouteChildren)
+
 interface AuthenticatedTutorRouteChildren {
   AuthenticatedTutorThreadIdRoute: typeof AuthenticatedTutorThreadIdRoute
   AuthenticatedTutorIndexRoute: typeof AuthenticatedTutorIndexRoute
@@ -414,6 +464,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMetasRoute: typeof AuthenticatedMetasRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedRankingRoute: typeof AuthenticatedRankingRoute
+  AuthenticatedResumosRoute: typeof AuthenticatedResumosRouteWithChildren
   AuthenticatedTutorRoute: typeof AuthenticatedTutorRouteWithChildren
   AuthenticatedVideoaulasRoute: typeof AuthenticatedVideoaulasRoute
 }
@@ -427,6 +478,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMetasRoute: AuthenticatedMetasRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedRankingRoute: AuthenticatedRankingRoute,
+  AuthenticatedResumosRoute: AuthenticatedResumosRouteWithChildren,
   AuthenticatedTutorRoute: AuthenticatedTutorRouteWithChildren,
   AuthenticatedVideoaulasRoute: AuthenticatedVideoaulasRoute,
 }
