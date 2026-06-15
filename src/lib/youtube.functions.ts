@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
 const ResolveInput = z.object({
@@ -32,6 +33,7 @@ async function searchYoutube(query: string): Promise<{ videoId: string; title?: 
 }
 
 export const resolveYoutubeVideo = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => ResolveInput.parse(d))
   .handler(async ({ data }) => {
     const q = data.channel ? `${data.query} ${data.channel}` : data.query;

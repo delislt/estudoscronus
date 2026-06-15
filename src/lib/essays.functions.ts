@@ -87,10 +87,11 @@ export const submitEssay = createServerFn({ method: "POST" })
         })
         .eq("id", row.id);
 
-      // XP/coins pela submissão
-      const { data: xp } = await supabase.from("user_xp").select("xp, coins").eq("user_id", userId).single();
+      // XP/coins pela submissão (server-only via admin client)
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: xp } = await supabaseAdmin.from("user_xp").select("xp, coins").eq("user_id", userId).single();
       if (xp) {
-        await supabase
+        await supabaseAdmin
           .from("user_xp")
           .update({ xp: (xp.xp ?? 0) + 40, coins: (xp.coins ?? 0) + 8 })
           .eq("user_id", userId);

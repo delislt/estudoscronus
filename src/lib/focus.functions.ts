@@ -40,7 +40,8 @@ export const recordFocusSession = createServerFn({ method: "POST" })
         const yIso = yesterday.toISOString().slice(0, 10);
         streak = xp.last_study_date === yIso ? streak + 1 : 1;
       }
-      await context.supabase
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
         .from("user_xp")
         .update({
           xp: (xp.xp ?? 0) + xpGain,

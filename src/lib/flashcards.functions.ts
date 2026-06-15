@@ -180,7 +180,8 @@ export const reviewCard = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .maybeSingle();
     if (xpRow) {
-      await context.supabase
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
         .from("user_xp")
         .update({ xp: (xpRow.xp ?? 0) + xpGain, coins: (xpRow.coins ?? 0) + 1 })
         .eq("user_id", context.userId);

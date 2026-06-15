@@ -61,7 +61,8 @@ export const buyItem = createServerFn({ method: "POST" })
       .maybeSingle();
     if (already) throw new Error("Você já possui este item");
 
-    const { error: ue } = await context.supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: ue } = await supabaseAdmin
       .from("user_xp")
       .update({ coins: coins - item.price })
       .eq("user_id", context.userId);
