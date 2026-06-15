@@ -16,6 +16,7 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedVideoaulasRouteImport } from './routes/_authenticated/videoaulas'
 import { Route as AuthenticatedTutorRouteImport } from './routes/_authenticated/tutor'
 import { Route as AuthenticatedSimuladosRouteImport } from './routes/_authenticated/simulados'
+import { Route as AuthenticatedRevisarRouteImport } from './routes/_authenticated/revisar'
 import { Route as AuthenticatedResumosRouteImport } from './routes/_authenticated/resumos'
 import { Route as AuthenticatedRedacaoRouteImport } from './routes/_authenticated/redacao'
 import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticated/ranking'
@@ -68,6 +69,11 @@ const AuthenticatedTutorRoute = AuthenticatedTutorRouteImport.update({
 const AuthenticatedSimuladosRoute = AuthenticatedSimuladosRouteImport.update({
   id: '/simulados',
   path: '/simulados',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRevisarRoute = AuthenticatedRevisarRouteImport.update({
+  id: '/revisar',
+  path: '/revisar',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedResumosRoute = AuthenticatedResumosRouteImport.update({
@@ -187,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/ranking': typeof AuthenticatedRankingRoute
   '/redacao': typeof AuthenticatedRedacaoRoute
   '/resumos': typeof AuthenticatedResumosRouteWithChildren
+  '/revisar': typeof AuthenticatedRevisarRoute
   '/simulados': typeof AuthenticatedSimuladosRouteWithChildren
   '/tutor': typeof AuthenticatedTutorRouteWithChildren
   '/videoaulas': typeof AuthenticatedVideoaulasRoute
@@ -214,6 +221,7 @@ export interface FileRoutesByTo {
   '/ranking': typeof AuthenticatedRankingRoute
   '/redacao': typeof AuthenticatedRedacaoRoute
   '/resumos': typeof AuthenticatedResumosRouteWithChildren
+  '/revisar': typeof AuthenticatedRevisarRoute
   '/simulados': typeof AuthenticatedSimuladosRouteWithChildren
   '/videoaulas': typeof AuthenticatedVideoaulasRoute
   '/api/chat': typeof ApiChatRoute
@@ -242,6 +250,7 @@ export interface FileRoutesById {
   '/_authenticated/ranking': typeof AuthenticatedRankingRoute
   '/_authenticated/redacao': typeof AuthenticatedRedacaoRoute
   '/_authenticated/resumos': typeof AuthenticatedResumosRouteWithChildren
+  '/_authenticated/revisar': typeof AuthenticatedRevisarRoute
   '/_authenticated/simulados': typeof AuthenticatedSimuladosRouteWithChildren
   '/_authenticated/tutor': typeof AuthenticatedTutorRouteWithChildren
   '/_authenticated/videoaulas': typeof AuthenticatedVideoaulasRoute
@@ -271,6 +280,7 @@ export interface FileRouteTypes {
     | '/ranking'
     | '/redacao'
     | '/resumos'
+    | '/revisar'
     | '/simulados'
     | '/tutor'
     | '/videoaulas'
@@ -298,6 +308,7 @@ export interface FileRouteTypes {
     | '/ranking'
     | '/redacao'
     | '/resumos'
+    | '/revisar'
     | '/simulados'
     | '/videoaulas'
     | '/api/chat'
@@ -325,6 +336,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ranking'
     | '/_authenticated/redacao'
     | '/_authenticated/resumos'
+    | '/_authenticated/revisar'
     | '/_authenticated/simulados'
     | '/_authenticated/tutor'
     | '/_authenticated/videoaulas'
@@ -395,6 +407,13 @@ declare module '@tanstack/react-router' {
       path: '/simulados'
       fullPath: '/simulados'
       preLoaderRoute: typeof AuthenticatedSimuladosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/revisar': {
+      id: '/_authenticated/revisar'
+      path: '/revisar'
+      fullPath: '/revisar'
+      preLoaderRoute: typeof AuthenticatedRevisarRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/resumos': {
@@ -614,6 +633,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedRankingRoute: typeof AuthenticatedRankingRoute
   AuthenticatedRedacaoRoute: typeof AuthenticatedRedacaoRoute
   AuthenticatedResumosRoute: typeof AuthenticatedResumosRouteWithChildren
+  AuthenticatedRevisarRoute: typeof AuthenticatedRevisarRoute
   AuthenticatedSimuladosRoute: typeof AuthenticatedSimuladosRouteWithChildren
   AuthenticatedTutorRoute: typeof AuthenticatedTutorRouteWithChildren
   AuthenticatedVideoaulasRoute: typeof AuthenticatedVideoaulasRoute
@@ -632,6 +652,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedRankingRoute: AuthenticatedRankingRoute,
   AuthenticatedRedacaoRoute: AuthenticatedRedacaoRoute,
   AuthenticatedResumosRoute: AuthenticatedResumosRouteWithChildren,
+  AuthenticatedRevisarRoute: AuthenticatedRevisarRoute,
   AuthenticatedSimuladosRoute: AuthenticatedSimuladosRouteWithChildren,
   AuthenticatedTutorRoute: AuthenticatedTutorRouteWithChildren,
   AuthenticatedVideoaulasRoute: AuthenticatedVideoaulasRoute,
