@@ -120,13 +120,24 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
 
   const isBusy = status === "submitted" || status === "streaming";
 
-  function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleFilePick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
-    if (file.size > 6 * 1024 * 1024) { toast.error("Imagem muito grande (máx. 6 MB)."); return; }
+    const isImage = file.type.startsWith("image/");
+    const isPdf = file.type === "application/pdf";
+    if (!isImage && !isPdf) {
+      toast.error("Formato não suportado. Envie uma imagem ou PDF.");
+      return;
+    }
+    const maxMb = isPdf ? 12 : 6;
+    if (file.size > maxMb * 1024 * 1024) {
+      toast.error(`Arquivo muito grande (máx. ${maxMb} MB).`);
+      return;
+    }
     const reader = new FileReader();
-    reader.onload = () => setPendingImage({ url: reader.result as string, mediaType: file.type });
+    reader.onload = () =>
+      setPendingFile({ url: reader.result as string, mediaType: file.type, name: file.name });
     reader.readAsDataURL(file);
   }
 
