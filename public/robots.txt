@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /onboarding
+Disallow: /tutor
+Disallow: /flashcards
+Disallow: /simulados
+Disallow: /redacao
+Disallow: /resumos
+Disallow: /foco
+Disallow: /metas
+Disallow: /calendario
+Disallow: /conquistas
+Disallow: /ranking
+Disallow: /amigos
+Disallow: /loja
+Disallow: /revisar
+Disallow: /videoaulas
+Disallow: /api/
+
+Sitemap: https://estudoscronus.lovable.app/sitemap.xml
