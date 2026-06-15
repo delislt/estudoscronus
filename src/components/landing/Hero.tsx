@@ -67,7 +67,7 @@ export function Hero() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground">Hoje, terça</p>
-                <h3 className="font-display font-bold text-xl mt-0.5">Sua rotina</h3>
+                <h2 className="font-display font-bold text-xl mt-0.5">Sua rotina</h2>
               </div>
               <span className="rounded-full bg-primary/20 text-primary-foreground px-3 py-1 text-xs font-semibold">
                 3 de 5 ✨

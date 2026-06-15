@@ -6,7 +6,7 @@ export function Navbar() {
     <header className="sticky top-0 z-30 backdrop-blur-md bg-background/70 border-b border-border/60">
       <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
         <a href="#top" className="flex items-center gap-2">
-          <img src={chronosLogo.url} alt="Chronos" className="h-9 w-9 object-contain" />
+          <img src={chronosLogo.url} alt="Cronus — Estudos leves com IA" className="h-9 w-9 object-contain" />
         </a>
         <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
           <a href="#recursos" className="hover:text-foreground transition">Recursos</a>

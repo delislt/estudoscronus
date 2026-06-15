@@ -9,9 +9,14 @@ export const Route = createFileRoute("/auth")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Entrar — Study" },
-      { name: "description", content: "Entre ou crie sua conta no Study e comece a estudar com IA." },
+      { title: "Entrar — Cronus" },
+      { name: "description", content: "Entre ou crie sua conta no Cronus e comece a estudar com IA: cronogramas, foco, flashcards e tutor." },
+      { property: "og:title", content: "Entrar — Cronus" },
+      { property: "og:description", content: "Acesse sua conta Cronus para estudar com IA." },
+      { property: "og:url", content: "https://estudoscronus.lovable.app/auth" },
+      { name: "robots", content: "noindex" },
     ],
+    links: [{ rel: "canonical", href: "https://estudoscronus.lovable.app/auth" }],
   }),
   component: AuthPage,
 });
