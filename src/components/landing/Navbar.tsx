@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import chronosLogo from "@/assets/chronos-logo.png.asset.json";
+import chronosLogo from "@/assets/chronos-emblem.png.asset.json";
 
 export function Navbar() {
   return (

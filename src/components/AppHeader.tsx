@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Bot, LogOut, Trophy, Video, Medal, Moon, Sun, LayoutDashboard, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTheme } from "@/lib/theme";
-import chronosLogo from "@/assets/chronos-logo.png.asset.json";
+import chronosLogo from "@/assets/chronos-emblem.png.asset.json";
 
 const navItems = [
   { to: "/dashboard",  label: "Painel",      icon: LayoutDashboard },
