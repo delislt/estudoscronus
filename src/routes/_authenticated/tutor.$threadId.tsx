@@ -69,8 +69,13 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
     if (typeof window === "undefined") return "medio";
     return (localStorage.getItem("tutor.level") as Level) || "medio";
   });
+  const [pendingImage, setPendingImage] = useState<{ url: string; mediaType: string } | null>(null);
+  const [recording, setRecording] = useState(false);
+  const [speakingId, setSpeakingId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") localStorage.setItem("tutor.level", level);
@@ -114,11 +119,62 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
 
   const isBusy = status === "submitted" || status === "streaming";
 
+  function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (file.size > 6 * 1024 * 1024) { toast.error("Imagem muito grande (máx. 6 MB)."); return; }
+    const reader = new FileReader();
+    reader.onload = () => setPendingImage({ url: reader.result as string, mediaType: file.type });
+    reader.readAsDataURL(file);
+  }
+
+  function toggleMic() {
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) { toast.error("Reconhecimento de voz não suportado neste navegador."); return; }
+    if (recording) { recognitionRef.current?.stop(); setRecording(false); return; }
+    const recog = new SR();
+    recog.lang = "pt-BR"; recog.continuous = true; recog.interimResults = true;
+    let finalText = "";
+    recog.onresult = (e: any) => {
+      let interim = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) finalText += t; else interim += t;
+      }
+      setInput((finalText + " " + interim).trim());
+    };
+    recog.onerror = () => setRecording(false);
+    recog.onend = () => setRecording(false);
+    recognitionRef.current = recog;
+    recog.start();
+    setRecording(true);
+  }
+
+  function speak(id: string, text: string) {
+    if (typeof window === "undefined" || !window.speechSynthesis) { toast.error("Síntese de voz não suportada."); return; }
+    if (speakingId === id) { window.speechSynthesis.cancel(); setSpeakingId(null); return; }
+    window.speechSynthesis.cancel();
+    const cleaned = text.replace(/[#*`>_~]/g, "").replace(/\$+/g, "");
+    const utt = new SpeechSynthesisUtterance(cleaned);
+    utt.lang = "pt-BR"; utt.rate = 1.0;
+    utt.onend = () => setSpeakingId(null);
+    utt.onerror = () => setSpeakingId(null);
+    window.speechSynthesis.speak(utt);
+    setSpeakingId(id);
+  }
+
   async function submit() {
     const text = input.trim();
-    if (!text || isBusy) return;
+    if (!text && !pendingImage) return;
+    if (isBusy) return;
     setInput("");
-    await sendMessage({ text });
+    const img = pendingImage;
+    setPendingImage(null);
+    const parts: any[] = [];
+    if (text) parts.push({ type: "text", text });
+    if (img) parts.push({ type: "file", url: img.url, mediaType: img.mediaType });
+    await sendMessage({ role: "user", parts });
     setTimeout(() => taRef.current?.focus(), 0);
   }
 
