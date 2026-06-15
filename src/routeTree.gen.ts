@@ -17,11 +17,15 @@ import { Route as AuthenticatedVideoaulasRouteImport } from './routes/_authentic
 import { Route as AuthenticatedTutorRouteImport } from './routes/_authenticated/tutor'
 import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticated/ranking'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedMetasRouteImport } from './routes/_authenticated/metas'
+import { Route as AuthenticatedFocoRouteImport } from './routes/_authenticated/foco'
+import { Route as AuthenticatedFlashcardsRouteImport } from './routes/_authenticated/flashcards'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedConquistasRouteImport } from './routes/_authenticated/conquistas'
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
 import { Route as AuthenticatedTutorIndexRouteImport } from './routes/_authenticated/tutor.index'
 import { Route as AuthenticatedTutorThreadIdRouteImport } from './routes/_authenticated/tutor.$threadId'
+import { Route as AuthenticatedFlashcardsDeckIdRouteImport } from './routes/_authenticated/flashcards.$deckId'
 import { Route as ApiPublicHooksGenerateDailyPlansRouteImport } from './routes/api/public/hooks/generate-daily-plans'
 
 const AuthRoute = AuthRouteImport.update({
@@ -63,6 +67,21 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMetasRoute = AuthenticatedMetasRouteImport.update({
+  id: '/metas',
+  path: '/metas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFocoRoute = AuthenticatedFocoRouteImport.update({
+  id: '/foco',
+  path: '/foco',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFlashcardsRoute = AuthenticatedFlashcardsRouteImport.update({
+  id: '/flashcards',
+  path: '/flashcards',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -89,6 +108,12 @@ const AuthenticatedTutorThreadIdRoute =
     path: '/$threadId',
     getParentRoute: () => AuthenticatedTutorRoute,
   } as any)
+const AuthenticatedFlashcardsDeckIdRoute =
+  AuthenticatedFlashcardsDeckIdRouteImport.update({
+    id: '/$deckId',
+    path: '/$deckId',
+    getParentRoute: () => AuthenticatedFlashcardsRoute,
+  } as any)
 const ApiPublicHooksGenerateDailyPlansRoute =
   ApiPublicHooksGenerateDailyPlansRouteImport.update({
     id: '/api/public/hooks/generate-daily-plans',
@@ -102,11 +127,15 @@ export interface FileRoutesByFullPath {
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/conquistas': typeof AuthenticatedConquistasRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/flashcards': typeof AuthenticatedFlashcardsRouteWithChildren
+  '/foco': typeof AuthenticatedFocoRoute
+  '/metas': typeof AuthenticatedMetasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ranking': typeof AuthenticatedRankingRoute
   '/tutor': typeof AuthenticatedTutorRouteWithChildren
   '/videoaulas': typeof AuthenticatedVideoaulasRoute
   '/api/chat': typeof ApiChatRoute
+  '/flashcards/$deckId': typeof AuthenticatedFlashcardsDeckIdRoute
   '/tutor/$threadId': typeof AuthenticatedTutorThreadIdRoute
   '/tutor/': typeof AuthenticatedTutorIndexRoute
   '/api/public/hooks/generate-daily-plans': typeof ApiPublicHooksGenerateDailyPlansRoute
@@ -117,10 +146,14 @@ export interface FileRoutesByTo {
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/conquistas': typeof AuthenticatedConquistasRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/flashcards': typeof AuthenticatedFlashcardsRouteWithChildren
+  '/foco': typeof AuthenticatedFocoRoute
+  '/metas': typeof AuthenticatedMetasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ranking': typeof AuthenticatedRankingRoute
   '/videoaulas': typeof AuthenticatedVideoaulasRoute
   '/api/chat': typeof ApiChatRoute
+  '/flashcards/$deckId': typeof AuthenticatedFlashcardsDeckIdRoute
   '/tutor/$threadId': typeof AuthenticatedTutorThreadIdRoute
   '/tutor': typeof AuthenticatedTutorIndexRoute
   '/api/public/hooks/generate-daily-plans': typeof ApiPublicHooksGenerateDailyPlansRoute
@@ -133,11 +166,15 @@ export interface FileRoutesById {
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/conquistas': typeof AuthenticatedConquistasRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/flashcards': typeof AuthenticatedFlashcardsRouteWithChildren
+  '/_authenticated/foco': typeof AuthenticatedFocoRoute
+  '/_authenticated/metas': typeof AuthenticatedMetasRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/ranking': typeof AuthenticatedRankingRoute
   '/_authenticated/tutor': typeof AuthenticatedTutorRouteWithChildren
   '/_authenticated/videoaulas': typeof AuthenticatedVideoaulasRoute
   '/api/chat': typeof ApiChatRoute
+  '/_authenticated/flashcards/$deckId': typeof AuthenticatedFlashcardsDeckIdRoute
   '/_authenticated/tutor/$threadId': typeof AuthenticatedTutorThreadIdRoute
   '/_authenticated/tutor/': typeof AuthenticatedTutorIndexRoute
   '/api/public/hooks/generate-daily-plans': typeof ApiPublicHooksGenerateDailyPlansRoute
@@ -150,11 +187,15 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/conquistas'
     | '/dashboard'
+    | '/flashcards'
+    | '/foco'
+    | '/metas'
     | '/onboarding'
     | '/ranking'
     | '/tutor'
     | '/videoaulas'
     | '/api/chat'
+    | '/flashcards/$deckId'
     | '/tutor/$threadId'
     | '/tutor/'
     | '/api/public/hooks/generate-daily-plans'
@@ -165,10 +206,14 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/conquistas'
     | '/dashboard'
+    | '/flashcards'
+    | '/foco'
+    | '/metas'
     | '/onboarding'
     | '/ranking'
     | '/videoaulas'
     | '/api/chat'
+    | '/flashcards/$deckId'
     | '/tutor/$threadId'
     | '/tutor'
     | '/api/public/hooks/generate-daily-plans'
@@ -180,11 +225,15 @@ export interface FileRouteTypes {
     | '/_authenticated/calendario'
     | '/_authenticated/conquistas'
     | '/_authenticated/dashboard'
+    | '/_authenticated/flashcards'
+    | '/_authenticated/foco'
+    | '/_authenticated/metas'
     | '/_authenticated/onboarding'
     | '/_authenticated/ranking'
     | '/_authenticated/tutor'
     | '/_authenticated/videoaulas'
     | '/api/chat'
+    | '/_authenticated/flashcards/$deckId'
     | '/_authenticated/tutor/$threadId'
     | '/_authenticated/tutor/'
     | '/api/public/hooks/generate-daily-plans'
@@ -256,6 +305,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/metas': {
+      id: '/_authenticated/metas'
+      path: '/metas'
+      fullPath: '/metas'
+      preLoaderRoute: typeof AuthenticatedMetasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/foco': {
+      id: '/_authenticated/foco'
+      path: '/foco'
+      fullPath: '/foco'
+      preLoaderRoute: typeof AuthenticatedFocoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/flashcards': {
+      id: '/_authenticated/flashcards'
+      path: '/flashcards'
+      fullPath: '/flashcards'
+      preLoaderRoute: typeof AuthenticatedFlashcardsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -291,6 +361,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTutorThreadIdRouteImport
       parentRoute: typeof AuthenticatedTutorRoute
     }
+    '/_authenticated/flashcards/$deckId': {
+      id: '/_authenticated/flashcards/$deckId'
+      path: '/$deckId'
+      fullPath: '/flashcards/$deckId'
+      preLoaderRoute: typeof AuthenticatedFlashcardsDeckIdRouteImport
+      parentRoute: typeof AuthenticatedFlashcardsRoute
+    }
     '/api/public/hooks/generate-daily-plans': {
       id: '/api/public/hooks/generate-daily-plans'
       path: '/api/public/hooks/generate-daily-plans'
@@ -300,6 +377,20 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedFlashcardsRouteChildren {
+  AuthenticatedFlashcardsDeckIdRoute: typeof AuthenticatedFlashcardsDeckIdRoute
+}
+
+const AuthenticatedFlashcardsRouteChildren: AuthenticatedFlashcardsRouteChildren =
+  {
+    AuthenticatedFlashcardsDeckIdRoute: AuthenticatedFlashcardsDeckIdRoute,
+  }
+
+const AuthenticatedFlashcardsRouteWithChildren =
+  AuthenticatedFlashcardsRoute._addFileChildren(
+    AuthenticatedFlashcardsRouteChildren,
+  )
 
 interface AuthenticatedTutorRouteChildren {
   AuthenticatedTutorThreadIdRoute: typeof AuthenticatedTutorThreadIdRoute
@@ -318,6 +409,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedConquistasRoute: typeof AuthenticatedConquistasRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedFlashcardsRoute: typeof AuthenticatedFlashcardsRouteWithChildren
+  AuthenticatedFocoRoute: typeof AuthenticatedFocoRoute
+  AuthenticatedMetasRoute: typeof AuthenticatedMetasRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedRankingRoute: typeof AuthenticatedRankingRoute
   AuthenticatedTutorRoute: typeof AuthenticatedTutorRouteWithChildren
@@ -328,6 +422,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedConquistasRoute: AuthenticatedConquistasRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedFlashcardsRoute: AuthenticatedFlashcardsRouteWithChildren,
+  AuthenticatedFocoRoute: AuthenticatedFocoRoute,
+  AuthenticatedMetasRoute: AuthenticatedMetasRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedRankingRoute: AuthenticatedRankingRoute,
   AuthenticatedTutorRoute: AuthenticatedTutorRouteWithChildren,
@@ -347,13 +444,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
