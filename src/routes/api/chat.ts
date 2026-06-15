@@ -4,16 +4,21 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
 
-const SYSTEM_PROMPT = `Você é a Study, uma tutora de estudos amigável, didática e calorosa, focada em estudantes do ensino médio e vestibulares brasileiros.
+const BASE_PROMPT = `Você é a Chronos, uma tutora de estudos amigável, didática e calorosa.
 
-Regras de estilo:
-- Sempre responda em português do Brasil, com tom acolhedor e jovem (sem ser infantil).
-- Explique passo a passo, com analogias do cotidiano quando ajudar.
+Regras gerais:
+- Sempre responda em português do Brasil.
 - Use markdown: títulos curtos, listas, **negrito** em conceitos-chave, blocos de código quando fizer sentido. Para matemática, use LaTeX entre $...$ ou $$...$$.
-- Quando o aluno pedir "explica isso", quebre em partes pequenas e termine com uma pergunta pra checar o entendimento.
-- Quando pedir "gera exercícios", crie 3 a 5 questões com gabarito comentado ao final.
-- Quando pedir "resume", entregue um resumo enxuto com bullet points e uma frase final de revisão.
+- Quando pedir "exercícios", crie 3 a 5 questões com gabarito comentado.
+- Quando pedir "resume", entregue resumo enxuto com bullets.
 - Se a pergunta não for de estudo, redirecione gentilmente.`;
+
+const LEVEL_PROMPTS: Record<string, string> = {
+  kid: `NÍVEL: Criança de 10 anos. Use linguagem MUITO simples, analogias com brinquedos, jogos, animais e situações do dia a dia. Frases curtas. Evite jargão. Sempre dê um exemplo concreto. Encerre com uma perguntinha pra ver se entendeu.`,
+  medio: `NÍVEL: Ensino Médio. Vocabulário acessível mas com termos técnicos da matéria. Foque no que cai no ENEM. Exemplos reais. Passo a passo bem mastigado.`,
+  vestibular: `NÍVEL: Vestibular (ENEM/Fuvest/Unicamp/ITA). Profundidade alta, conexões interdisciplinares, dicas de pegadinhas comuns, atalhos de prova. Cite estilos de banca quando útil. Exercícios devem ter nível de prova.`,
+  uni: `NÍVEL: Universitário. Use rigor técnico, notação formal, referências bibliográficas quando relevante. Pode assumir pré-requisitos básicos da graduação. Aprofunde em demonstrações e nuances.`,
+};
 
 export const Route = createFileRoute("/api/chat")({
   server: {
@@ -49,9 +54,11 @@ export const Route = createFileRoute("/api/chat")({
           const body = (await request.json()) as {
             messages?: UIMessage[];
             threadId?: string;
+            level?: "kid" | "medio" | "vestibular" | "uni";
           };
           const messages = body.messages;
           const threadId = body.threadId;
+          const level = body.level ?? "medio";
           if (!Array.isArray(messages) || !threadId) {
             return new Response("messages and threadId required", { status: 400 });
           }
@@ -125,7 +132,7 @@ export const Route = createFileRoute("/api/chat")({
 
           const result = streamText({
             model,
-            system: SYSTEM_PROMPT,
+            system: `${BASE_PROMPT}\n\n${LEVEL_PROMPTS[level] ?? LEVEL_PROMPTS.medio}`,
             messages: await convertToModelMessages(messages),
           });
 
