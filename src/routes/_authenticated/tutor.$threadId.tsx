@@ -55,10 +55,26 @@ function ThreadChat() {
   return <ChatInner key={threadId} threadId={threadId} initialMessages={initial} />;
 }
 
+type Level = "kid" | "medio" | "vestibular" | "uni";
+const LEVELS: { key: Level; label: string }[] = [
+  { key: "kid", label: "Criança (10 anos)" },
+  { key: "medio", label: "Ensino Médio" },
+  { key: "vestibular", label: "Vestibular" },
+  { key: "uni", label: "Universitário" },
+];
+
 function ChatInner({ threadId, initialMessages }: { threadId: string; initialMessages: UIMessage[] }) {
   const [input, setInput] = useState("");
+  const [level, setLevel] = useState<Level>(() => {
+    if (typeof window === "undefined") return "medio";
+    return (localStorage.getItem("tutor.level") as Level) || "medio";
+  });
   const scrollRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") localStorage.setItem("tutor.level", level);
+  }, [level]);
 
   const transport = useMemo(
     () =>
@@ -70,12 +86,12 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
           const headers: Record<string, string> = {};
           if (token) headers.Authorization = `Bearer ${token}`;
           return {
-            body: { messages, threadId, ...(body ?? {}) },
+            body: { messages, threadId, level, ...(body ?? {}) },
             headers,
           };
         },
       }),
-    [threadId],
+    [threadId, level],
   );
 
   const { messages, sendMessage, status, error } = useChat({
