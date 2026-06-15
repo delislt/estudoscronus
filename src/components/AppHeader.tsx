@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Bot, LogOut, Trophy, Video, Medal, Moon, Sun, LayoutDashboard, Calendar, Layers, Target, Timer, FileText } from "lucide-react";
+import { Bot, LogOut, Trophy, Video, Medal, Moon, Sun, LayoutDashboard, Calendar, Layers, Target, Timer, FileText, ClipboardCheck, PenLine } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTheme } from "@/lib/theme";
 import chronosLogo from "@/assets/chronos-emblem.png.asset.json";
@@ -10,6 +10,8 @@ const navItems = [
   { to: "/tutor",      label: "Tutora",      icon: Bot },
   { to: "/flashcards", label: "Flashcards",  icon: Layers },
   { to: "/resumos",    label: "Resumos",     icon: FileText },
+  { to: "/simulados",  label: "Simulados",   icon: ClipboardCheck },
+  { to: "/redacao",    label: "Redação",     icon: PenLine },
   { to: "/foco",       label: "Foco",        icon: Timer },
   { to: "/metas",      label: "Metas",       icon: Target },
   { to: "/videoaulas", label: "Videoaulas",  icon: Video },
