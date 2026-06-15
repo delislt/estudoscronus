@@ -36,7 +36,7 @@ function TakeExam() {
 
   useEffect(() => {
     fetchAttempt({ data: { attemptId } }).then((res) => {
-      const r = res as { questions: Question[]; answers: { question_id: string; chosen_label: string | null }[]; attempt: { status: string } };
+      const r = res as unknown as { questions: Question[]; answers: { question_id: string; chosen_label: string | null }[]; attempt: { status: string } };
       if (r.attempt.status === "finished") {
         navigate({ to: "/simulados/$attemptId/resultado", params: { attemptId } });
         return;
