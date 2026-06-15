@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Bot, LogOut, Trophy, Video, Medal, Moon, Sun, LayoutDashboard, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTheme } from "@/lib/theme";
-import chronosLogo from "@/assets/chronos-logo.png.asset.json";
+import chronosLogo from "@/assets/chronos-emblem.png.asset.json";
 
 const navItems = [
   { to: "/dashboard",  label: "Painel",      icon: LayoutDashboard },
@@ -27,7 +27,6 @@ export function AppHeader() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
         <Link to="/dashboard" className="inline-flex items-center gap-2 font-display font-bold shrink-0">
           <img src={chronosLogo.url} alt="Chronos" className="h-9 w-9 object-contain" />
-          <span className="hidden sm:inline">Chronos</span>
         </Link>
 
         <nav className="flex items-center gap-0.5 sm:gap-1 overflow-x-auto no-scrollbar">

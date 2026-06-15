@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import chronosLogo from "@/assets/chronos-logo.png.asset.json";
+import chronosLogo from "@/assets/chronos-emblem.png.asset.json";
 
 export function Navbar() {
   return (
@@ -7,7 +7,6 @@ export function Navbar() {
       <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
         <a href="#top" className="flex items-center gap-2">
           <img src={chronosLogo.url} alt="Chronos" className="h-9 w-9 object-contain" />
-          <span className="font-display font-bold text-lg">Chronos</span>
         </a>
         <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
           <a href="#recursos" className="hover:text-foreground transition">Recursos</a>
