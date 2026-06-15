@@ -5,7 +5,7 @@ import { DefaultChatTransport, type UIMessage } from "ai";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { getThreadMessages } from "@/lib/tutor.functions";
-import { Bot, User as UserIcon, Send, Sparkles, Mic, MicOff, Camera, Volume2, X } from "lucide-react";
+import { Bot, User as UserIcon, Send, Sparkles, Mic, MicOff, Camera, Volume2, X, Paperclip, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { MessageResponse } from "@/components/ai-elements/message";
 
