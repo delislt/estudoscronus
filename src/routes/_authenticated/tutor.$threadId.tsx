@@ -224,7 +224,7 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
             </button>
           ))}
         </div>
-        <div className="hidden">
+        
         <div className="flex items-end gap-2 rounded-2xl border border-border/60 bg-card px-3 py-2 focus-within:ring-2 focus-within:ring-primary/30">
           <textarea
             ref={taRef}
