@@ -1,0 +1,13 @@
+# Cronus — Estudos com IA
+
+> Plataforma de estudos com IA para estudantes brasileiros. Cronogramas inteligentes, tutor IA multimodal, simulados ENEM, flashcards SRS, redação corrigida por IA, foco Pomodoro, metas e gamificação.
+
+Cronus é um aplicativo de estudos feito para teens e vestibulandos que querem organizar a rotina de aprendizado com inteligência artificial. A plataforma oferece tutor IA com suporte a voz, imagem e texto; simulados baseados em provas do ENEM com correção TRI; flashcards com repetição espaçada (SRS); correção de redação nas 5 competências do ENEM; resumos de PDFs; modo foco Pomodoro; calendário de estudos; metas semanais; e sistema de gamificação com moedas, conquistas, ranking de amigos e loja de itens.
+
+## Pages
+
+- [/](/): Página inicial e landing page do Cronus. Apresenta os principais recursos do app, como tutor IA, simulados ENEM, flashcards SRS, correção de redação, modo foco e gamificação.
+
+## Optional
+
+- [/auth](/auth): Entrar ou criar conta no Cronus (login com email/senha ou Google).
