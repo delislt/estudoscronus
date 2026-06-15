@@ -1,0 +1,17 @@
+{
+  "name": "Cronus — Estudos com IA",
+  "short_name": "Cronus",
+  "description": "Organize sua rotina, mantenha a consistência e alcance seus objetivos com tutor IA, simulados e flashcards.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0b10",
+  "theme_color": "#0b0b10",
+  "lang": "pt-BR",
+  "categories": ["education", "productivity"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
