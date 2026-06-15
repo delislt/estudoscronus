@@ -42,20 +42,34 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: `${window.location.origin}/auth`,
             data: { full_name: name || email.split("@")[0] },
           },
         });
         if (error) throw error;
-        toast.success("Conta criada! Vamos personalizar seus estudos.");
-        navigate({ to: "/onboarding" });
+        if (data.session) {
+          // Auto sign-in (email confirmation disabled)
+          toast.success("Conta criada! Vamos personalizar seus estudos.");
+          navigate({ to: "/onboarding" });
+        } else {
+          // Email confirmation required
+          toast.success(`Enviamos um link de confirmação para ${email}. Confira sua caixa de entrada (e o spam) para ativar a conta.`, { duration: 8000 });
+          setMode("signin");
+          setPassword("");
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        if (error) {
+          if (/email.*not.*confirmed/i.test(error.message)) {
+            toast.error("Confirme seu email antes de entrar. Verifique sua caixa de entrada.");
+            return;
+          }
+          throw error;
+        }
         navigate({ to: "/dashboard" });
       }
     } catch (err: any) {
