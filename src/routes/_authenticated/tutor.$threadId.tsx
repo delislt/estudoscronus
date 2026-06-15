@@ -291,7 +291,49 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
           ))}
         </div>
         
-        <div className="flex items-end gap-2 rounded-2xl border border-border/60 bg-card px-3 py-2 focus-within:ring-2 focus-within:ring-primary/30">
+        {pendingImage && (
+          <div className="relative inline-block">
+            <img src={pendingImage.url} alt="prévia" className="h-20 rounded-lg border border-border/60" />
+            <button
+              type="button"
+              onClick={() => setPendingImage(null)}
+              className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-background border border-border grid place-items-center"
+              aria-label="Remover imagem"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+        )}
+
+        <div className="flex items-end gap-2 rounded-2xl border border-border/60 bg-card px-2 py-2 focus-within:ring-2 focus-within:ring-primary/30">
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={handleImagePick}
+          />
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="h-9 w-9 shrink-0 rounded-xl grid place-items-center text-muted-foreground hover:text-primary hover:bg-muted"
+            aria-label="Foto do exercício"
+            title="Foto do exercício"
+          >
+            <Camera className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={toggleMic}
+            className={`h-9 w-9 shrink-0 rounded-xl grid place-items-center hover:bg-muted ${
+              recording ? "text-destructive animate-pulse" : "text-muted-foreground hover:text-primary"
+            }`}
+            aria-label={recording ? "Parar gravação" : "Falar"}
+            title={recording ? "Parar gravação" : "Falar"}
+          >
+            {recording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+          </button>
           <textarea
             ref={taRef}
             value={input}
@@ -303,12 +345,12 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
               }
             }}
             rows={1}
-            placeholder="Pergunta pra Study… (Shift+Enter pra quebrar linha)"
+            placeholder={pendingImage ? "Descreve o que perguntar sobre a imagem…" : "Pergunta pra Study… (Shift+Enter pra quebrar linha)"}
             className="flex-1 resize-none bg-transparent outline-none text-sm py-1.5 max-h-32 placeholder:text-muted-foreground"
           />
           <button
             type="submit"
-            disabled={isBusy || !input.trim()}
+            disabled={isBusy || (!input.trim() && !pendingImage)}
             className="h-9 w-9 shrink-0 rounded-xl bg-primary text-primary-foreground grid place-items-center disabled:opacity-40 hover:brightness-105"
             aria-label="Enviar"
           >
