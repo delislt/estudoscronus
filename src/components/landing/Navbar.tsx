@@ -1,15 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
+import chronosLogo from "@/assets/chronos-logo.png.asset.json";
 
 export function Navbar() {
   return (
     <header className="sticky top-0 z-30 backdrop-blur-md bg-background/70 border-b border-border/60">
       <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
         <a href="#top" className="flex items-center gap-2">
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary">
-            <Sparkles className="h-4 w-4" />
-          </span>
-          <span className="font-display font-bold text-lg">Study</span>
+          <img src={chronosLogo.url} alt="Chronos" className="h-9 w-9 object-contain" />
+          <span className="font-display font-bold text-lg">Chronos</span>
         </a>
         <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
           <a href="#recursos" className="hover:text-foreground transition">Recursos</a>
