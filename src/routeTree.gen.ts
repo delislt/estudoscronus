@@ -27,6 +27,7 @@ import { Route as AuthenticatedFlashcardsRouteImport } from './routes/_authentic
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedConquistasRouteImport } from './routes/_authenticated/conquistas'
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
+import { Route as AuthenticatedAmigosRouteImport } from './routes/_authenticated/amigos'
 import { Route as AuthenticatedTutorIndexRouteImport } from './routes/_authenticated/tutor.index'
 import { Route as AuthenticatedTutorThreadIdRouteImport } from './routes/_authenticated/tutor.$threadId'
 import { Route as AuthenticatedSimuladosAttemptIdRouteImport } from './routes/_authenticated/simulados.$attemptId'
@@ -124,6 +125,11 @@ const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
   path: '/calendario',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAmigosRoute = AuthenticatedAmigosRouteImport.update({
+  id: '/amigos',
+  path: '/amigos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTutorIndexRoute = AuthenticatedTutorIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -169,6 +175,7 @@ const AuthenticatedSimuladosAttemptIdResultadoRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/amigos': typeof AuthenticatedAmigosRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/conquistas': typeof AuthenticatedConquistasRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -195,6 +202,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/amigos': typeof AuthenticatedAmigosRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/conquistas': typeof AuthenticatedConquistasRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -222,6 +230,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/amigos': typeof AuthenticatedAmigosRoute
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/conquistas': typeof AuthenticatedConquistasRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -250,6 +259,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/amigos'
     | '/calendario'
     | '/conquistas'
     | '/dashboard'
@@ -276,6 +286,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/amigos'
     | '/calendario'
     | '/conquistas'
     | '/dashboard'
@@ -302,6 +313,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/amigos'
     | '/_authenticated/calendario'
     | '/_authenticated/conquistas'
     | '/_authenticated/dashboard'
@@ -462,6 +474,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCalendarioRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/amigos': {
+      id: '/_authenticated/amigos'
+      path: '/amigos'
+      fullPath: '/amigos'
+      preLoaderRoute: typeof AuthenticatedAmigosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/tutor/': {
       id: '/_authenticated/tutor/'
       path: '/'
@@ -583,6 +602,7 @@ const AuthenticatedTutorRouteWithChildren =
   AuthenticatedTutorRoute._addFileChildren(AuthenticatedTutorRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAmigosRoute: typeof AuthenticatedAmigosRoute
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedConquistasRoute: typeof AuthenticatedConquistasRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
@@ -600,6 +620,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAmigosRoute: AuthenticatedAmigosRoute,
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedConquistasRoute: AuthenticatedConquistasRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
