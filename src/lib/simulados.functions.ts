@@ -55,7 +55,7 @@ export const startEnemAttempt = createServerFn({ method: "POST" })
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       for (const disc of missing) {
         try {
-          const questions = await fetchEnemQuestions(data.year, disc, 60);
+          const questions = await fetchEnemQuestions(data.year, disc, 45);
           const rows = questions.map(enemQuestionToRow);
           if (rows.length > 0) {
             await supabaseAdmin.from("questions").upsert(rows, { onConflict: "external_id" });
