@@ -69,11 +69,12 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
     if (typeof window === "undefined") return "medio";
     return (localStorage.getItem("tutor.level") as Level) || "medio";
   });
-  const [pendingImage, setPendingImage] = useState<{ url: string; mediaType: string } | null>(null);
+  const [pendingFile, setPendingFile] = useState<{ url: string; mediaType: string; name: string } | null>(null);
   const [recording, setRecording] = useState(false);
   const [speakingId, setSpeakingId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
 
