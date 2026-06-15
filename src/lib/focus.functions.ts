@@ -20,8 +20,6 @@ export const recordFocusSession = createServerFn({ method: "POST" })
         user_id: context.userId,
         subject_id: data.subject_id ?? null,
         duration_min: data.duration_min,
-        notes: data.notes ?? null,
-        session_date: today,
       }),
       context.supabase
         .from("user_xp")

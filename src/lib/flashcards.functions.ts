@@ -172,10 +172,8 @@ export const reviewCard = createServerFn({ method: "POST" })
     if (uErr) throw new Error(uErr.message);
     if (rErr) throw new Error(rErr.message);
 
-    // Award small XP for a review (+2 normal, +3 if not again)
+    // Award small XP for a review
     const xpGain = data.rating === "again" ? 1 : 3;
-    await context.supabase.rpc("noop", {}).then(() => null).catch(() => null);
-    // Best-effort XP increment via direct update
     const { data: xpRow } = await context.supabase
       .from("user_xp")
       .select("xp, coins")
