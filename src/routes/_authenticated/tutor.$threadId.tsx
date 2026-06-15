@@ -215,24 +215,34 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
             .filter((p) => p.type === "text")
             .map((p) => (p as { text: string }).text)
             .join("");
+          const files = (m.parts ?? []).filter((p: any) => p.type === "file") as Array<{ url: string; mediaType: string }>;
           const isUser = m.role === "user";
           return (
             <div key={m.id} className={`flex gap-3 ${isUser ? "flex-row-reverse" : ""}`}>
-              <div
-                className={`h-8 w-8 shrink-0 rounded-full grid place-items-center ${
-                  isUser ? "bg-primary text-primary-foreground" : "bg-sky-soft text-primary"
-                }`}
-              >
+              <div className={`h-8 w-8 shrink-0 rounded-full grid place-items-center ${
+                isUser ? "bg-primary text-primary-foreground" : "bg-sky-soft text-primary"
+              }`}>
                 {isUser ? <UserIcon className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
               </div>
-              <div
-                className={`max-w-[85%] ${
-                  isUser
-                    ? "rounded-2xl rounded-tr-sm bg-primary text-primary-foreground px-4 py-2.5 text-sm whitespace-pre-wrap"
-                    : "text-sm text-foreground prose prose-sm max-w-none prose-p:my-2 prose-pre:bg-muted prose-pre:text-foreground prose-code:text-foreground"
-                }`}
-              >
+              <div className={`max-w-[85%] space-y-2 ${
+                isUser
+                  ? "rounded-2xl rounded-tr-sm bg-primary text-primary-foreground px-4 py-2.5 text-sm whitespace-pre-wrap"
+                  : "text-sm text-foreground prose prose-sm max-w-none prose-p:my-2 prose-pre:bg-muted prose-pre:text-foreground prose-code:text-foreground"
+              }`}>
+                {files.map((f, i) => f.mediaType?.startsWith("image/") ? (
+                  <img key={i} src={f.url} alt="anexo" className="rounded-lg max-h-64 border border-border/40" />
+                ) : null)}
                 {isUser ? text : <MessageResponse>{text || "…"}</MessageResponse>}
+                {!isUser && text && (
+                  <button
+                    type="button"
+                    onClick={() => speak(m.id, text)}
+                    className="not-prose inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary mt-1"
+                  >
+                    <Volume2 className="h-3.5 w-3.5" />
+                    {speakingId === m.id ? "Parar" : "Ouvir"}
+                  </button>
+                )}
               </div>
             </div>
           );
