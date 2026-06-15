@@ -21,6 +21,7 @@ import { Route as AuthenticatedRedacaoRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticated/ranking'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedMetasRouteImport } from './routes/_authenticated/metas'
+import { Route as AuthenticatedLojaRouteImport } from './routes/_authenticated/loja'
 import { Route as AuthenticatedFocoRouteImport } from './routes/_authenticated/foco'
 import { Route as AuthenticatedFlashcardsRouteImport } from './routes/_authenticated/flashcards'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -91,6 +92,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
 const AuthenticatedMetasRoute = AuthenticatedMetasRouteImport.update({
   id: '/metas',
   path: '/metas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLojaRoute = AuthenticatedLojaRouteImport.update({
+  id: '/loja',
+  path: '/loja',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedFocoRoute = AuthenticatedFocoRouteImport.update({
@@ -168,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/flashcards': typeof AuthenticatedFlashcardsRouteWithChildren
   '/foco': typeof AuthenticatedFocoRoute
+  '/loja': typeof AuthenticatedLojaRoute
   '/metas': typeof AuthenticatedMetasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ranking': typeof AuthenticatedRankingRoute
@@ -193,6 +200,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/flashcards': typeof AuthenticatedFlashcardsRouteWithChildren
   '/foco': typeof AuthenticatedFocoRoute
+  '/loja': typeof AuthenticatedLojaRoute
   '/metas': typeof AuthenticatedMetasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ranking': typeof AuthenticatedRankingRoute
@@ -219,6 +227,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/flashcards': typeof AuthenticatedFlashcardsRouteWithChildren
   '/_authenticated/foco': typeof AuthenticatedFocoRoute
+  '/_authenticated/loja': typeof AuthenticatedLojaRoute
   '/_authenticated/metas': typeof AuthenticatedMetasRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/ranking': typeof AuthenticatedRankingRoute
@@ -246,6 +255,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/flashcards'
     | '/foco'
+    | '/loja'
     | '/metas'
     | '/onboarding'
     | '/ranking'
@@ -271,6 +281,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/flashcards'
     | '/foco'
+    | '/loja'
     | '/metas'
     | '/onboarding'
     | '/ranking'
@@ -296,6 +307,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/flashcards'
     | '/_authenticated/foco'
+    | '/_authenticated/loja'
     | '/_authenticated/metas'
     | '/_authenticated/onboarding'
     | '/_authenticated/ranking'
@@ -406,6 +418,13 @@ declare module '@tanstack/react-router' {
       path: '/metas'
       fullPath: '/metas'
       preLoaderRoute: typeof AuthenticatedMetasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/loja': {
+      id: '/_authenticated/loja'
+      path: '/loja'
+      fullPath: '/loja'
+      preLoaderRoute: typeof AuthenticatedLojaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/foco': {
@@ -569,6 +588,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFlashcardsRoute: typeof AuthenticatedFlashcardsRouteWithChildren
   AuthenticatedFocoRoute: typeof AuthenticatedFocoRoute
+  AuthenticatedLojaRoute: typeof AuthenticatedLojaRoute
   AuthenticatedMetasRoute: typeof AuthenticatedMetasRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedRankingRoute: typeof AuthenticatedRankingRoute
@@ -585,6 +605,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFlashcardsRoute: AuthenticatedFlashcardsRouteWithChildren,
   AuthenticatedFocoRoute: AuthenticatedFocoRoute,
+  AuthenticatedLojaRoute: AuthenticatedLojaRoute,
   AuthenticatedMetasRoute: AuthenticatedMetasRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedRankingRoute: AuthenticatedRankingRoute,
