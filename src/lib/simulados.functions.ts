@@ -244,28 +244,20 @@ export const finishAttempt = createServerFn({ method: "POST" })
     // Concede XP/Moedas pela conclusão
     const xpGain = 50 + correct * 5;
     const coinGain = 10 + Math.floor(correct / 2);
-    await supabase.rpc("noop").catch(() => {});
-    await supabase
+    const { data: xpRow } = await supabase
       .from("user_xp")
-      .update({ xp: undefined, coins: undefined })
+      .select("xp, coins")
       .eq("user_id", userId)
-      .then(async () => {
-        // RPC ausente; usamos update direto via fetch
-        const { data: row } = await supabase
-          .from("user_xp")
-          .select("xp, coins")
-          .eq("user_id", userId)
-          .single();
-        if (row) {
-          await supabase
-            .from("user_xp")
-            .update({
-              xp: (row.xp ?? 0) + xpGain,
-              coins: (row.coins ?? 0) + coinGain,
-            })
-            .eq("user_id", userId);
-        }
-      });
+      .single();
+    if (xpRow) {
+      await supabase
+        .from("user_xp")
+        .update({
+          xp: (xpRow.xp ?? 0) + xpGain,
+          coins: (xpRow.coins ?? 0) + coinGain,
+        })
+        .eq("user_id", userId);
+    }
 
     return { rawScore, triScore: triAvg, correct, perSubject, xpGain, coinGain };
   });
