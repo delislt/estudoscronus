@@ -203,8 +203,28 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
           e.preventDefault();
           submit();
         }}
-        className="border-t border-border/60 p-3 sm:p-4 bg-background/60"
+        className="border-t border-border/60 p-3 sm:p-4 bg-background/60 space-y-2"
       >
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          <span className="text-[11px] uppercase tracking-wider text-muted-foreground shrink-0 mr-1">
+            Nível
+          </span>
+          {LEVELS.map((l) => (
+            <button
+              key={l.key}
+              type="button"
+              onClick={() => setLevel(l.key)}
+              className={`shrink-0 text-xs px-2.5 h-7 rounded-full border transition ${
+                level === l.key
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-card text-muted-foreground border-border/60 hover:text-foreground"
+              }`}
+            >
+              {l.label}
+            </button>
+          ))}
+        </div>
+        <div className="hidden">
         <div className="flex items-end gap-2 rounded-2xl border border-border/60 bg-card px-3 py-2 focus-within:ring-2 focus-within:ring-primary/30">
           <textarea
             ref={taRef}
