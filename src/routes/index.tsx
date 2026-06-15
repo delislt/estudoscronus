@@ -10,19 +10,22 @@ import { Footer } from "@/components/landing/Footer";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Study — Estudos leves, com IA do seu lado" },
+      { title: "Cronus — Estudos leves, com IA do seu lado" },
       {
         name: "description",
         content:
           "Cronogramas inteligentes, metas, modo foco Pomodoro e uma IA tutora pronta pra explicar qualquer matéria. Feito pra teens.",
       },
-      { property: "og:title", content: "Study — Estudos leves, com IA do seu lado" },
+      { property: "og:title", content: "Cronus — Estudos leves, com IA do seu lado" },
       {
         property: "og:description",
         content:
           "Rotina escolar do jeito que faz sentido pra você. Cronograma, foco, metas e IA tutora.",
       },
+      { property: "og:url", content: "https://estudoscronus.lovable.app/" },
+      { property: "og:type", content: "website" },
     ],
+    links: [{ rel: "canonical", href: "https://estudoscronus.lovable.app/" }],
   }),
   component: Index,
 });
