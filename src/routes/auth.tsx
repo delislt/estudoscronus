@@ -167,6 +167,11 @@ function AuthPage() {
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               {mode === "signin" ? "Entrar" : "Criar conta"}
             </button>
+            {mode === "signup" && (
+              <p className="text-xs text-muted-foreground text-center pt-1">
+                Vamos enviar um link de confirmação para o seu email antes de ativar a conta.
+              </p>
+            )}
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
