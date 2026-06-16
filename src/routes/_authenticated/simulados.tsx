@@ -1,10 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ClipboardCheck, Plus, Loader2 } from "lucide-react";
+import { ClipboardCheck, Plus, Loader2, Trash2, Coins } from "lucide-react";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
-import { listAttempts, startEnemAttempt } from "@/lib/simulados.functions";
+import { listAttempts, startEnemAttempt, deleteAttempt } from "@/lib/simulados.functions";
 
 export const Route = createFileRoute("/_authenticated/simulados")({
   head: () => ({ meta: [{ title: "Simulados — Chronos" }] }),
