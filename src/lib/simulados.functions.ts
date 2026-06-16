@@ -248,13 +248,13 @@ export const finishAttempt = createServerFn({ method: "POST" })
     // Concede XP/Moedas pela conclusão
     const xpGain = 50 + correct * 5;
     const coinGain = 10 + Math.floor(correct / 2);
-    const { data: xpRow } = await supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: xpRow } = await supabaseAdmin
       .from("user_xp")
       .select("xp, coins")
       .eq("user_id", userId)
-      .single();
+      .maybeSingle();
     if (xpRow) {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       await supabaseAdmin
         .from("user_xp")
         .update({
@@ -262,6 +262,10 @@ export const finishAttempt = createServerFn({ method: "POST" })
           coins: (xpRow.coins ?? 0) + coinGain,
         })
         .eq("user_id", userId);
+    } else {
+      await supabaseAdmin
+        .from("user_xp")
+        .insert({ user_id: userId, xp: xpGain, coins: coinGain });
     }
 
     return { rawScore, triScore: triAvg, correct, perSubject, xpGain, coinGain };
@@ -279,4 +283,20 @@ export const listAttempts = createServerFn({ method: "GET" })
       .order("started_at", { ascending: false })
       .limit(50);
     return data ?? [];
+  });
+
+// --- Apaga simulado ---
+export const deleteAttempt = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ attemptId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    await supabase.from("exam_answers").delete().eq("attempt_id", data.attemptId).eq("user_id", userId);
+    const { error } = await supabase
+      .from("exam_attempts")
+      .delete()
+      .eq("id", data.attemptId)
+      .eq("user_id", userId);
+    if (error) throw error;
+    return { ok: true };
   });
