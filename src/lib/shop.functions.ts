@@ -68,7 +68,7 @@ export const buyItem = createServerFn({ method: "POST" })
       .eq("user_id", context.userId);
     if (ue) throw new Error(ue.message);
 
-    const { error: ine } = await context.supabase
+    const { error: ine } = await supabaseAdmin
       .from("user_inventory")
       .insert({ user_id: context.userId, item_id: item.id });
     if (ine) throw new Error(ine.message);
