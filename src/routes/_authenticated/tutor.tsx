@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate, Outlet } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Plus, Trash2, ArrowLeft, Sparkles, MessageSquare } from "lucide-react";
+import { Plus, Trash2, MessageSquare } from "lucide-react";
+import { AppHeader } from "@/components/AppHeader";
 import { listThreads, createThread, deleteThread } from "@/lib/tutor.functions";
 import { toast } from "sonner";
 
