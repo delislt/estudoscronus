@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { calculateTriEnem, type TriItem } from "@/lib/tri";
+import { levelFromXp } from "@/lib/scheduling";
 
 const DISCIPLINES = ["linguagens", "matematica", "ciencias-humanas", "ciencias-natureza"] as const;
 type Discipline = (typeof DISCIPLINES)[number];
