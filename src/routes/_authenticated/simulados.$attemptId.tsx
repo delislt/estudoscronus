@@ -35,19 +35,29 @@ function TakeExam() {
   const [startedAt, setStartedAt] = useState<number>(Date.now());
 
   useEffect(() => {
-    fetchAttempt({ data: { attemptId } }).then((res) => {
-      const r = res as unknown as { questions: Question[]; answers: { question_id: string; chosen_label: string | null }[]; attempt: { status: string } };
-      if (r.attempt.status === "finished") {
-        navigate({ to: "/simulados/$attemptId/resultado", params: { attemptId } });
-        return;
-      }
-      setQuestions(r.questions);
-      const map: Record<string, string> = {};
-      for (const a of r.answers) if (a.chosen_label) map[a.question_id] = a.chosen_label;
-      setAnswers(map);
-      setLoading(false);
-      setStartedAt(Date.now());
-    });
+    fetchAttempt({ data: { attemptId } })
+      .then((res) => {
+        const r = res as unknown as { questions: Question[]; answers: { question_id: string; chosen_label: string | null }[]; attempt: { status: string } };
+        if (r.attempt.status === "finished") {
+          navigate({ to: "/simulados/$attemptId/resultado", params: { attemptId } });
+          return;
+        }
+        if (!r.questions || r.questions.length === 0) {
+          toast.error("Esse simulado não tem questões. Crie um novo.");
+          navigate({ to: "/simulados" });
+          return;
+        }
+        setQuestions(r.questions);
+        const map: Record<string, string> = {};
+        for (const a of r.answers) if (a.chosen_label) map[a.question_id] = a.chosen_label;
+        setAnswers(map);
+        setLoading(false);
+        setStartedAt(Date.now());
+      })
+      .catch((e) => {
+        toast.error((e as Error).message || "Falha ao carregar simulado");
+        navigate({ to: "/simulados" });
+      });
   }, [attemptId, fetchAttempt, navigate]);
 
   const current = questions[index];
