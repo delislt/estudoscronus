@@ -101,6 +101,15 @@ function ShopPage() {
           </div>
         </div>
 
+        <div className="mb-6 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm">
+          <p className="font-semibold mb-1 inline-flex items-center gap-2"><Coins className="h-4 w-4 text-amber-500" /> Como ganhar moedas</p>
+          <ul className="text-muted-foreground list-disc pl-5 space-y-0.5">
+            <li>Sessão de foco: <strong>1 moeda a cada 10 min</strong> estudados.</li>
+            <li>Simulado finalizado: <strong>10 moedas + 1 a cada 2 acertos</strong>.</li>
+            <li>Mantenha sua <strong>streak diária</strong> estudando todo dia para ganhar XP e subir no ranking.</li>
+          </ul>
+        </div>
+
         {loading ? (
           <p className="text-muted-foreground">Carregando…</p>
         ) : (

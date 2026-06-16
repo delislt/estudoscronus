@@ -1,10 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ClipboardCheck, Plus, Loader2 } from "lucide-react";
+import { ClipboardCheck, Plus, Loader2, Trash2, Coins } from "lucide-react";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
-import { listAttempts, startEnemAttempt } from "@/lib/simulados.functions";
+import { listAttempts, startEnemAttempt, deleteAttempt } from "@/lib/simulados.functions";
 
 export const Route = createFileRoute("/_authenticated/simulados")({
   head: () => ({ meta: [{ title: "Simulados — Chronos" }] }),
@@ -34,6 +34,7 @@ type Attempt = {
 function SimuladosPage() {
   const fetchAttempts = useServerFn(listAttempts);
   const startFn = useServerFn(startEnemAttempt);
+  const deleteFn = useServerFn(deleteAttempt);
   const navigate = useNavigate();
 
   const [attempts, setAttempts] = useState<Attempt[]>([]);
@@ -41,10 +42,25 @@ function SimuladosPage() {
   const [selected, setSelected] = useState<string[]>(["matematica"]);
   const [perDisc, setPerDisc] = useState(10);
   const [creating, setCreating] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAttempts().then((r) => setAttempts(r as Attempt[]));
   }, [fetchAttempts]);
+
+  async function handleDelete(id: string) {
+    if (!confirm("Apagar este simulado? Essa ação não pode ser desfeita.")) return;
+    setDeletingId(id);
+    try {
+      await deleteFn({ data: { attemptId: id } });
+      setAttempts((prev) => prev.filter((a) => a.id !== id));
+      toast.success("Simulado apagado");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   function toggleDisc(d: string) {
     setSelected((prev) => (prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]));
@@ -149,37 +165,59 @@ function SimuladosPage() {
           ) : (
             <ul className="space-y-2">
               {attempts.map((a) => (
-                <li key={a.id}>
-                  <Link
-                    to={a.status === "finished" ? "/simulados/$attemptId/resultado" : "/simulados/$attemptId"}
-                    params={{ attemptId: a.id }}
-                    className="block rounded-xl border border-border bg-card p-4 hover:border-primary transition"
-                  >
-                    <div className="flex items-center justify-between gap-3 flex-wrap">
-                      <div>
-                        <p className="font-medium">{a.source.toUpperCase()} · {a.subjects.join(", ")}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(a.started_at).toLocaleString("pt-BR")} · {a.total_questions} questões
-                        </p>
+                <li key={a.id} className="rounded-xl border border-border bg-card hover:border-primary transition">
+                  <div className="flex items-stretch">
+                    <Link
+                      to={a.status === "finished" ? "/simulados/$attemptId/resultado" : "/simulados/$attemptId"}
+                      params={{ attemptId: a.id }}
+                      className="flex-1 p-4"
+                    >
+                      <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <div>
+                          <p className="font-medium">{a.source.toUpperCase()} · {a.subjects.join(", ")}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(a.started_at).toLocaleString("pt-BR")} · {a.total_questions} questões
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          {a.status === "finished" ? (
+                            <>
+                              <p className="text-lg font-display font-bold">{a.tri_score ?? a.raw_score}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {a.correct_count}/{a.total_questions} acertos
+                              </p>
+                            </>
+                          ) : (
+                            <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">Em andamento</span>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-right">
-                        {a.status === "finished" ? (
-                          <>
-                            <p className="text-lg font-display font-bold">{a.tri_score ?? a.raw_score}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {a.correct_count}/{a.total_questions} acertos
-                            </p>
-                          </>
-                        ) : (
-                          <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">Em andamento</span>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(a.id)}
+                      disabled={deletingId === a.id}
+                      aria-label="Apagar simulado"
+                      className="px-4 flex items-center text-muted-foreground hover:text-destructive border-l border-border disabled:opacity-50"
+                    >
+                      {deletingId === a.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
           )}
+        </section>
+
+        <section className="rounded-2xl border border-border bg-card p-6">
+          <h2 className="font-display font-semibold flex items-center gap-2 mb-3">
+            <Coins className="h-4 w-4 text-amber-500" /> Como funcionam XP e moedas
+          </h2>
+          <ul className="text-sm text-muted-foreground space-y-1 list-disc pl-5">
+            <li><strong className="text-foreground">Simulado finalizado:</strong> 50 XP + 5 XP por acerto · 10 moedas + 1 a cada 2 acertos.</li>
+            <li><strong className="text-foreground">Sessão de foco/estudo:</strong> 1 XP por minuto (até 120) + 1 moeda a cada 10 minutos.</li>
+            <li><strong className="text-foreground">Streak:</strong> aumenta a cada dia que você estuda em sequência (foco ou tarefa concluída). Pular um dia zera a sequência.</li>
+            <li>Use as moedas na <Link to="/loja" className="text-primary underline">Loja</Link> para comprar temas, avatares e power-ups.</li>
+          </ul>
         </section>
       </div>
     </div>
