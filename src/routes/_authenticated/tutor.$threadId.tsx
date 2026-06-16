@@ -243,7 +243,12 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
               }`}>
                 {files.map((f, i) => f.mediaType?.startsWith("image/") ? (
                   <img key={i} src={f.url} alt="anexo" className="rounded-lg max-h-64 border border-border/40" />
-                ) : null)}
+                ) : (
+                  <div key={i} className="inline-flex items-center gap-2 rounded-lg border border-border/40 bg-background/60 px-3 py-2 text-xs">
+                    <FileText className="h-4 w-4 text-primary" />
+                    <span>Arquivo enviado (PDF)</span>
+                  </div>
+                ))}
                 {isUser ? text : <MessageResponse>{text || "…"}</MessageResponse>}
                 {!isUser && text && (
                   <button
