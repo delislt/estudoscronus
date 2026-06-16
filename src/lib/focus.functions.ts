@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { levelFromXp } from "@/lib/scheduling";
 
 export const recordFocusSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -41,19 +42,24 @@ export const recordFocusSession = createServerFn({ method: "POST" })
         const yIso = yesterday.toISOString().slice(0, 10);
         streak = xp.last_study_date === yIso ? streak + 1 : 1;
       }
+      const newXp = (xp.xp ?? 0) + xpGain;
+      const { level } = levelFromXp(newXp);
       await supabaseAdmin
         .from("user_xp")
         .update({
-          xp: (xp.xp ?? 0) + xpGain,
+          xp: newXp,
+          level,
           coins: (xp.coins ?? 0) + coinsGain,
           streak_days: streak,
           last_study_date: today,
         })
         .eq("user_id", context.userId);
     } else {
+      const { level } = levelFromXp(xpGain);
       await supabaseAdmin.from("user_xp").insert({
         user_id: context.userId,
         xp: xpGain,
+        level,
         coins: coinsGain,
         streak_days: 1,
         last_study_date: today,

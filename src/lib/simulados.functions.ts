@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { calculateTriEnem, type TriItem } from "@/lib/tri";
+import { levelFromXp } from "@/lib/scheduling";
 
 const DISCIPLINES = ["linguagens", "matematica", "ciencias-humanas", "ciencias-natureza"] as const;
 type Discipline = (typeof DISCIPLINES)[number];
@@ -255,17 +256,21 @@ export const finishAttempt = createServerFn({ method: "POST" })
       .eq("user_id", userId)
       .maybeSingle();
     if (xpRow) {
+      const newXp = (xpRow.xp ?? 0) + xpGain;
+      const { level } = levelFromXp(newXp);
       await supabaseAdmin
         .from("user_xp")
         .update({
-          xp: (xpRow.xp ?? 0) + xpGain,
+          xp: newXp,
+          level,
           coins: (xpRow.coins ?? 0) + coinGain,
         })
         .eq("user_id", userId);
     } else {
+      const { level } = levelFromXp(xpGain);
       await supabaseAdmin
         .from("user_xp")
-        .insert({ user_id: userId, xp: xpGain, coins: coinGain });
+        .insert({ user_id: userId, xp: xpGain, level, coins: coinGain });
     }
 
     return { rawScore, triScore: triAvg, correct, perSubject, xpGain, coinGain };
