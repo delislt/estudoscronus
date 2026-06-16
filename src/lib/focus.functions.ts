@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { levelFromXp } from "@/lib/scheduling";
 
 export const recordFocusSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
