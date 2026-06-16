@@ -5,7 +5,7 @@ import { DefaultChatTransport, type UIMessage } from "ai";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { getThreadMessages } from "@/lib/tutor.functions";
-import { Bot, User as UserIcon, Send, Sparkles, Mic, MicOff, Camera, Volume2, X } from "lucide-react";
+import { Bot, User as UserIcon, Send, Sparkles, Mic, MicOff, Camera, Volume2, X, Paperclip, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { MessageResponse } from "@/components/ai-elements/message";
 
@@ -69,11 +69,12 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
     if (typeof window === "undefined") return "medio";
     return (localStorage.getItem("tutor.level") as Level) || "medio";
   });
-  const [pendingImage, setPendingImage] = useState<{ url: string; mediaType: string } | null>(null);
+  const [pendingFile, setPendingFile] = useState<{ url: string; mediaType: string; name: string } | null>(null);
   const [recording, setRecording] = useState(false);
   const [speakingId, setSpeakingId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
 
@@ -119,13 +120,24 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
 
   const isBusy = status === "submitted" || status === "streaming";
 
-  function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleFilePick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
-    if (file.size > 6 * 1024 * 1024) { toast.error("Imagem muito grande (máx. 6 MB)."); return; }
+    const isImage = file.type.startsWith("image/");
+    const isPdf = file.type === "application/pdf";
+    if (!isImage && !isPdf) {
+      toast.error("Formato não suportado. Envie uma imagem ou PDF.");
+      return;
+    }
+    const maxMb = isPdf ? 12 : 6;
+    if (file.size > maxMb * 1024 * 1024) {
+      toast.error(`Arquivo muito grande (máx. ${maxMb} MB).`);
+      return;
+    }
     const reader = new FileReader();
-    reader.onload = () => setPendingImage({ url: reader.result as string, mediaType: file.type });
+    reader.onload = () =>
+      setPendingFile({ url: reader.result as string, mediaType: file.type, name: file.name });
     reader.readAsDataURL(file);
   }
 
@@ -166,14 +178,14 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
 
   async function submit() {
     const text = input.trim();
-    if (!text && !pendingImage) return;
+    if (!text && !pendingFile) return;
     if (isBusy) return;
     setInput("");
-    const img = pendingImage;
-    setPendingImage(null);
+    const file = pendingFile;
+    setPendingFile(null);
     const parts: any[] = [];
     if (text) parts.push({ type: "text", text });
-    if (img) parts.push({ type: "file", url: img.url, mediaType: img.mediaType });
+    if (file) parts.push({ type: "file", url: file.url, mediaType: file.mediaType, filename: file.name });
     await sendMessage({ role: "user", parts });
     setTimeout(() => taRef.current?.focus(), 0);
   }
@@ -231,7 +243,12 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
               }`}>
                 {files.map((f, i) => f.mediaType?.startsWith("image/") ? (
                   <img key={i} src={f.url} alt="anexo" className="rounded-lg max-h-64 border border-border/40" />
-                ) : null)}
+                ) : (
+                  <div key={i} className="inline-flex items-center gap-2 rounded-lg border border-border/40 bg-background/60 px-3 py-2 text-xs">
+                    <FileText className="h-4 w-4 text-primary" />
+                    <span>Arquivo enviado (PDF)</span>
+                  </div>
+                ))}
                 {isUser ? text : <MessageResponse>{text || "…"}</MessageResponse>}
                 {!isUser && text && (
                   <button
@@ -291,14 +308,26 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
           ))}
         </div>
         
-        {pendingImage && (
-          <div className="relative inline-block">
-            <img src={pendingImage.url} alt="prévia" className="h-20 rounded-lg border border-border/60" />
+        {pendingFile && (
+          <div className="relative inline-flex items-center gap-2 rounded-xl border border-border/60 bg-muted/60 p-2 pr-8">
+            {pendingFile.mediaType.startsWith("image/") ? (
+              <img src={pendingFile.url} alt="prévia" className="h-16 w-16 rounded-lg object-cover border border-border/60" />
+            ) : (
+              <div className="h-16 w-16 rounded-lg bg-background border border-border/60 grid place-items-center text-primary">
+                <FileText className="h-7 w-7" />
+              </div>
+            )}
+            <div className="text-xs">
+              <div className="font-medium truncate max-w-[180px]">{pendingFile.name}</div>
+              <div className="text-muted-foreground uppercase">
+                {pendingFile.mediaType === "application/pdf" ? "PDF" : "Imagem"}
+              </div>
+            </div>
             <button
               type="button"
-              onClick={() => setPendingImage(null)}
-              className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-background border border-border grid place-items-center"
-              aria-label="Remover imagem"
+              onClick={() => setPendingFile(null)}
+              className="absolute top-1 right-1 h-6 w-6 rounded-full bg-background border border-border grid place-items-center"
+              aria-label="Remover anexo"
             >
               <X className="h-3 w-3" />
             </button>
@@ -307,19 +336,35 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
 
         <div className="flex items-end gap-2 rounded-2xl border border-border/60 bg-card px-2 py-2 focus-within:ring-2 focus-within:ring-primary/30">
           <input
-            ref={fileRef}
+            ref={cameraRef}
             type="file"
             accept="image/*"
             capture="environment"
             className="hidden"
-            onChange={handleImagePick}
+            onChange={handleFilePick}
+          />
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*,application/pdf"
+            className="hidden"
+            onChange={handleFilePick}
           />
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
             className="h-9 w-9 shrink-0 rounded-xl grid place-items-center text-muted-foreground hover:text-primary hover:bg-muted"
+            aria-label="Anexar arquivo"
+            title="Anexar imagem ou PDF"
+          >
+            <Paperclip className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => cameraRef.current?.click()}
+            className="h-9 w-9 shrink-0 rounded-xl grid place-items-center text-muted-foreground hover:text-primary hover:bg-muted"
             aria-label="Foto do exercício"
-            title="Foto do exercício"
+            title="Tirar foto do exercício"
           >
             <Camera className="h-4 w-4" />
           </button>
@@ -345,12 +390,12 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
               }
             }}
             rows={1}
-            placeholder={pendingImage ? "Descreve o que perguntar sobre a imagem…" : "Pergunta pra Study… (Shift+Enter pra quebrar linha)"}
+            placeholder={pendingFile ? "Descreve o que perguntar sobre o anexo…" : "Pergunta pra Cronus… (Shift+Enter pra quebrar linha)"}
             className="flex-1 resize-none bg-transparent outline-none text-sm py-1.5 max-h-32 placeholder:text-muted-foreground"
           />
           <button
             type="submit"
-            disabled={isBusy || (!input.trim() && !pendingImage)}
+            disabled={isBusy || (!input.trim() && !pendingFile)}
             className="h-9 w-9 shrink-0 rounded-xl bg-primary text-primary-foreground grid place-items-center disabled:opacity-40 hover:brightness-105"
             aria-label="Enviar"
           >
