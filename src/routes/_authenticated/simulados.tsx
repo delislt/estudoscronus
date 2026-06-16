@@ -34,6 +34,7 @@ type Attempt = {
 function SimuladosPage() {
   const fetchAttempts = useServerFn(listAttempts);
   const startFn = useServerFn(startEnemAttempt);
+  const deleteFn = useServerFn(deleteAttempt);
   const navigate = useNavigate();
 
   const [attempts, setAttempts] = useState<Attempt[]>([]);
@@ -41,10 +42,25 @@ function SimuladosPage() {
   const [selected, setSelected] = useState<string[]>(["matematica"]);
   const [perDisc, setPerDisc] = useState(10);
   const [creating, setCreating] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAttempts().then((r) => setAttempts(r as Attempt[]));
   }, [fetchAttempts]);
+
+  async function handleDelete(id: string) {
+    if (!confirm("Apagar este simulado? Essa ação não pode ser desfeita.")) return;
+    setDeletingId(id);
+    try {
+      await deleteFn({ data: { attemptId: id } });
+      setAttempts((prev) => prev.filter((a) => a.id !== id));
+      toast.success("Simulado apagado");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   function toggleDisc(d: string) {
     setSelected((prev) => (prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]));
