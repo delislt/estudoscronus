@@ -32,6 +32,7 @@ export const recordFocusSession = createServerFn({ method: "POST" })
     // XP gain = 1 per minute, capped 120
     const xpGain = Math.min(120, data.duration_min);
     const coinsGain = Math.floor(data.duration_min / 10);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (xp) {
       let streak = xp.streak_days ?? 0;
       if (xp.last_study_date !== today) {
@@ -40,7 +41,6 @@ export const recordFocusSession = createServerFn({ method: "POST" })
         const yIso = yesterday.toISOString().slice(0, 10);
         streak = xp.last_study_date === yIso ? streak + 1 : 1;
       }
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       await supabaseAdmin
         .from("user_xp")
         .update({
@@ -50,6 +50,14 @@ export const recordFocusSession = createServerFn({ method: "POST" })
           last_study_date: today,
         })
         .eq("user_id", context.userId);
+    } else {
+      await supabaseAdmin.from("user_xp").insert({
+        user_id: context.userId,
+        xp: xpGain,
+        coins: coinsGain,
+        streak_days: 1,
+        last_study_date: today,
+      });
     }
 
     return { ok: true, xpGain, coinsGain };
