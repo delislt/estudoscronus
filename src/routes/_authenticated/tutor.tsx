@@ -52,22 +52,8 @@ function TutorLayout() {
 
   return (
     <div className="min-h-screen bg-app-gradient">
-      <header className="border-b border-border/40 bg-background/60 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/dashboard" className="inline-flex items-center gap-2 font-display font-bold">
-            <span className="h-8 w-8 rounded-xl bg-primary text-primary-foreground grid place-items-center">
-              <Sparkles className="h-4 w-4" />
-            </span>
-            Study
-          </Link>
-          <Link
-            to="/dashboard"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5"
-          >
-            <ArrowLeft className="h-4 w-4" /> Painel
-          </Link>
-        </div>
-      </header>
+      <AppHeader />
+
 
       <div className="max-w-6xl mx-auto px-6 py-6 grid md:grid-cols-[280px_1fr] gap-6">
         <aside className="rounded-3xl bg-card border border-border/60 p-4 shadow-sm h-fit md:sticky md:top-24">
