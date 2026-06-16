@@ -57,8 +57,12 @@ export const startEnemAttempt = createServerFn({ method: "POST" })
         try {
           const questions = await fetchEnemQuestions(data.year, disc, 45);
           const rows = questions.map(enemQuestionToRow);
+          console.log("[enem-import]", disc, "fetched", rows.length, "questions");
           if (rows.length > 0) {
-            await supabaseAdmin.from("questions").upsert(rows, { onConflict: "external_id" });
+            const { error: upErr } = await supabaseAdmin
+              .from("questions")
+              .upsert(rows, { onConflict: "source,exam_year,external_id" });
+            if (upErr) console.error("[enem-import] upsert failed", disc, upErr);
           }
         } catch (err) {
           console.error("[enem-import]", disc, err);
