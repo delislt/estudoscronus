@@ -178,14 +178,14 @@ function ChatInner({ threadId, initialMessages }: { threadId: string; initialMes
 
   async function submit() {
     const text = input.trim();
-    if (!text && !pendingImage) return;
+    if (!text && !pendingFile) return;
     if (isBusy) return;
     setInput("");
-    const img = pendingImage;
-    setPendingImage(null);
+    const file = pendingFile;
+    setPendingFile(null);
     const parts: any[] = [];
     if (text) parts.push({ type: "text", text });
-    if (img) parts.push({ type: "file", url: img.url, mediaType: img.mediaType });
+    if (file) parts.push({ type: "file", url: file.url, mediaType: file.mediaType, filename: file.name });
     await sendMessage({ role: "user", parts });
     setTimeout(() => taRef.current?.focus(), 0);
   }
