@@ -78,9 +78,11 @@ export async function fetchEnemQuestions(
 
 export function enemQuestionToRow(q: EnemQuestion) {
   const statement = [q.context, q.alternativesIntroduction].filter(Boolean).join("\n\n");
-  const alternatives = q.alternatives
-    .filter((a) => a.text)
-    .map((a) => ({ label: a.letter, text: a.text }));
+  const alternatives = q.alternatives.map((a) => ({
+    label: a.letter,
+    text: a.text ?? "",
+    file: a.file ?? null,
+  }));
   return {
     external_id: `enem:${q.year}:${q.index}:${q.language ?? "pt"}`,
     source: "enem",
