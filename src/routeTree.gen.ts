@@ -16,7 +16,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedVideoaulasRouteImport } from './routes/_authenticated/videoaulas'
 import { Route as AuthenticatedTutorRouteImport } from './routes/_authenticated/tutor'
-import { Route as AuthenticatedSimuladosRouteImport } from './routes/_authenticated/simulados'
 import { Route as AuthenticatedRevisarRouteImport } from './routes/_authenticated/revisar'
 import { Route as AuthenticatedResumosRouteImport } from './routes/_authenticated/resumos'
 import { Route as AuthenticatedRedacaoRouteImport } from './routes/_authenticated/redacao'
@@ -31,10 +30,11 @@ import { Route as AuthenticatedConquistasRouteImport } from './routes/_authentic
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
 import { Route as AuthenticatedAmigosRouteImport } from './routes/_authenticated/amigos'
 import { Route as AuthenticatedTutorIndexRouteImport } from './routes/_authenticated/tutor.index'
+import { Route as AuthenticatedSimuladosIndexRouteImport } from './routes/_authenticated/simulados.index'
 import { Route as AuthenticatedTutorThreadIdRouteImport } from './routes/_authenticated/tutor.$threadId'
-import { Route as AuthenticatedSimuladosAttemptIdRouteImport } from './routes/_authenticated/simulados.$attemptId'
 import { Route as AuthenticatedResumosDocumentIdRouteImport } from './routes/_authenticated/resumos.$documentId'
 import { Route as AuthenticatedFlashcardsDeckIdRouteImport } from './routes/_authenticated/flashcards.$deckId'
+import { Route as AuthenticatedSimuladosAttemptIdIndexRouteImport } from './routes/_authenticated/simulados.$attemptId.index'
 import { Route as ApiPublicHooksGenerateDailyPlansRouteImport } from './routes/api/public/hooks/generate-daily-plans'
 import { Route as AuthenticatedSimuladosAttemptIdResultadoRouteImport } from './routes/_authenticated/simulados.$attemptId.resultado'
 
@@ -70,11 +70,6 @@ const AuthenticatedVideoaulasRoute = AuthenticatedVideoaulasRouteImport.update({
 const AuthenticatedTutorRoute = AuthenticatedTutorRouteImport.update({
   id: '/tutor',
   path: '/tutor',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedSimuladosRoute = AuthenticatedSimuladosRouteImport.update({
-  id: '/simulados',
-  path: '/simulados',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRevisarRoute = AuthenticatedRevisarRouteImport.update({
@@ -147,17 +142,17 @@ const AuthenticatedTutorIndexRoute = AuthenticatedTutorIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedTutorRoute,
 } as any)
+const AuthenticatedSimuladosIndexRoute =
+  AuthenticatedSimuladosIndexRouteImport.update({
+    id: '/simulados/',
+    path: '/simulados/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedTutorThreadIdRoute =
   AuthenticatedTutorThreadIdRouteImport.update({
     id: '/$threadId',
     path: '/$threadId',
     getParentRoute: () => AuthenticatedTutorRoute,
-  } as any)
-const AuthenticatedSimuladosAttemptIdRoute =
-  AuthenticatedSimuladosAttemptIdRouteImport.update({
-    id: '/$attemptId',
-    path: '/$attemptId',
-    getParentRoute: () => AuthenticatedSimuladosRoute,
   } as any)
 const AuthenticatedResumosDocumentIdRoute =
   AuthenticatedResumosDocumentIdRouteImport.update({
@@ -171,6 +166,12 @@ const AuthenticatedFlashcardsDeckIdRoute =
     path: '/$deckId',
     getParentRoute: () => AuthenticatedFlashcardsRoute,
   } as any)
+const AuthenticatedSimuladosAttemptIdIndexRoute =
+  AuthenticatedSimuladosAttemptIdIndexRouteImport.update({
+    id: '/simulados/$attemptId/',
+    path: '/simulados/$attemptId/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicHooksGenerateDailyPlansRoute =
   ApiPublicHooksGenerateDailyPlansRouteImport.update({
     id: '/api/public/hooks/generate-daily-plans',
@@ -179,9 +180,9 @@ const ApiPublicHooksGenerateDailyPlansRoute =
   } as any)
 const AuthenticatedSimuladosAttemptIdResultadoRoute =
   AuthenticatedSimuladosAttemptIdResultadoRouteImport.update({
-    id: '/resultado',
-    path: '/resultado',
-    getParentRoute: () => AuthenticatedSimuladosAttemptIdRoute,
+    id: '/simulados/$attemptId/resultado',
+    path: '/simulados/$attemptId/resultado',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -201,17 +202,17 @@ export interface FileRoutesByFullPath {
   '/redacao': typeof AuthenticatedRedacaoRoute
   '/resumos': typeof AuthenticatedResumosRouteWithChildren
   '/revisar': typeof AuthenticatedRevisarRoute
-  '/simulados': typeof AuthenticatedSimuladosRouteWithChildren
   '/tutor': typeof AuthenticatedTutorRouteWithChildren
   '/videoaulas': typeof AuthenticatedVideoaulasRoute
   '/api/chat': typeof ApiChatRoute
   '/flashcards/$deckId': typeof AuthenticatedFlashcardsDeckIdRoute
   '/resumos/$documentId': typeof AuthenticatedResumosDocumentIdRoute
-  '/simulados/$attemptId': typeof AuthenticatedSimuladosAttemptIdRouteWithChildren
   '/tutor/$threadId': typeof AuthenticatedTutorThreadIdRoute
+  '/simulados/': typeof AuthenticatedSimuladosIndexRoute
   '/tutor/': typeof AuthenticatedTutorIndexRoute
   '/simulados/$attemptId/resultado': typeof AuthenticatedSimuladosAttemptIdResultadoRoute
   '/api/public/hooks/generate-daily-plans': typeof ApiPublicHooksGenerateDailyPlansRoute
+  '/simulados/$attemptId/': typeof AuthenticatedSimuladosAttemptIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -230,16 +231,16 @@ export interface FileRoutesByTo {
   '/redacao': typeof AuthenticatedRedacaoRoute
   '/resumos': typeof AuthenticatedResumosRouteWithChildren
   '/revisar': typeof AuthenticatedRevisarRoute
-  '/simulados': typeof AuthenticatedSimuladosRouteWithChildren
   '/videoaulas': typeof AuthenticatedVideoaulasRoute
   '/api/chat': typeof ApiChatRoute
   '/flashcards/$deckId': typeof AuthenticatedFlashcardsDeckIdRoute
   '/resumos/$documentId': typeof AuthenticatedResumosDocumentIdRoute
-  '/simulados/$attemptId': typeof AuthenticatedSimuladosAttemptIdRouteWithChildren
   '/tutor/$threadId': typeof AuthenticatedTutorThreadIdRoute
+  '/simulados': typeof AuthenticatedSimuladosIndexRoute
   '/tutor': typeof AuthenticatedTutorIndexRoute
   '/simulados/$attemptId/resultado': typeof AuthenticatedSimuladosAttemptIdResultadoRoute
   '/api/public/hooks/generate-daily-plans': typeof ApiPublicHooksGenerateDailyPlansRoute
+  '/simulados/$attemptId': typeof AuthenticatedSimuladosAttemptIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -260,17 +261,17 @@ export interface FileRoutesById {
   '/_authenticated/redacao': typeof AuthenticatedRedacaoRoute
   '/_authenticated/resumos': typeof AuthenticatedResumosRouteWithChildren
   '/_authenticated/revisar': typeof AuthenticatedRevisarRoute
-  '/_authenticated/simulados': typeof AuthenticatedSimuladosRouteWithChildren
   '/_authenticated/tutor': typeof AuthenticatedTutorRouteWithChildren
   '/_authenticated/videoaulas': typeof AuthenticatedVideoaulasRoute
   '/api/chat': typeof ApiChatRoute
   '/_authenticated/flashcards/$deckId': typeof AuthenticatedFlashcardsDeckIdRoute
   '/_authenticated/resumos/$documentId': typeof AuthenticatedResumosDocumentIdRoute
-  '/_authenticated/simulados/$attemptId': typeof AuthenticatedSimuladosAttemptIdRouteWithChildren
   '/_authenticated/tutor/$threadId': typeof AuthenticatedTutorThreadIdRoute
+  '/_authenticated/simulados/': typeof AuthenticatedSimuladosIndexRoute
   '/_authenticated/tutor/': typeof AuthenticatedTutorIndexRoute
   '/_authenticated/simulados/$attemptId/resultado': typeof AuthenticatedSimuladosAttemptIdResultadoRoute
   '/api/public/hooks/generate-daily-plans': typeof ApiPublicHooksGenerateDailyPlansRoute
+  '/_authenticated/simulados/$attemptId/': typeof AuthenticatedSimuladosAttemptIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -291,17 +292,17 @@ export interface FileRouteTypes {
     | '/redacao'
     | '/resumos'
     | '/revisar'
-    | '/simulados'
     | '/tutor'
     | '/videoaulas'
     | '/api/chat'
     | '/flashcards/$deckId'
     | '/resumos/$documentId'
-    | '/simulados/$attemptId'
     | '/tutor/$threadId'
+    | '/simulados/'
     | '/tutor/'
     | '/simulados/$attemptId/resultado'
     | '/api/public/hooks/generate-daily-plans'
+    | '/simulados/$attemptId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -320,16 +321,16 @@ export interface FileRouteTypes {
     | '/redacao'
     | '/resumos'
     | '/revisar'
-    | '/simulados'
     | '/videoaulas'
     | '/api/chat'
     | '/flashcards/$deckId'
     | '/resumos/$documentId'
-    | '/simulados/$attemptId'
     | '/tutor/$threadId'
+    | '/simulados'
     | '/tutor'
     | '/simulados/$attemptId/resultado'
     | '/api/public/hooks/generate-daily-plans'
+    | '/simulados/$attemptId'
   id:
     | '__root__'
     | '/'
@@ -349,17 +350,17 @@ export interface FileRouteTypes {
     | '/_authenticated/redacao'
     | '/_authenticated/resumos'
     | '/_authenticated/revisar'
-    | '/_authenticated/simulados'
     | '/_authenticated/tutor'
     | '/_authenticated/videoaulas'
     | '/api/chat'
     | '/_authenticated/flashcards/$deckId'
     | '/_authenticated/resumos/$documentId'
-    | '/_authenticated/simulados/$attemptId'
     | '/_authenticated/tutor/$threadId'
+    | '/_authenticated/simulados/'
     | '/_authenticated/tutor/'
     | '/_authenticated/simulados/$attemptId/resultado'
     | '/api/public/hooks/generate-daily-plans'
+    | '/_authenticated/simulados/$attemptId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -420,13 +421,6 @@ declare module '@tanstack/react-router' {
       path: '/tutor'
       fullPath: '/tutor'
       preLoaderRoute: typeof AuthenticatedTutorRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/simulados': {
-      id: '/_authenticated/simulados'
-      path: '/simulados'
-      fullPath: '/simulados'
-      preLoaderRoute: typeof AuthenticatedSimuladosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/revisar': {
@@ -527,19 +521,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTutorIndexRouteImport
       parentRoute: typeof AuthenticatedTutorRoute
     }
+    '/_authenticated/simulados/': {
+      id: '/_authenticated/simulados/'
+      path: '/simulados'
+      fullPath: '/simulados/'
+      preLoaderRoute: typeof AuthenticatedSimuladosIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/tutor/$threadId': {
       id: '/_authenticated/tutor/$threadId'
       path: '/$threadId'
       fullPath: '/tutor/$threadId'
       preLoaderRoute: typeof AuthenticatedTutorThreadIdRouteImport
       parentRoute: typeof AuthenticatedTutorRoute
-    }
-    '/_authenticated/simulados/$attemptId': {
-      id: '/_authenticated/simulados/$attemptId'
-      path: '/$attemptId'
-      fullPath: '/simulados/$attemptId'
-      preLoaderRoute: typeof AuthenticatedSimuladosAttemptIdRouteImport
-      parentRoute: typeof AuthenticatedSimuladosRoute
     }
     '/_authenticated/resumos/$documentId': {
       id: '/_authenticated/resumos/$documentId'
@@ -555,6 +549,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFlashcardsDeckIdRouteImport
       parentRoute: typeof AuthenticatedFlashcardsRoute
     }
+    '/_authenticated/simulados/$attemptId/': {
+      id: '/_authenticated/simulados/$attemptId/'
+      path: '/simulados/$attemptId'
+      fullPath: '/simulados/$attemptId/'
+      preLoaderRoute: typeof AuthenticatedSimuladosAttemptIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/hooks/generate-daily-plans': {
       id: '/api/public/hooks/generate-daily-plans'
       path: '/api/public/hooks/generate-daily-plans'
@@ -564,10 +565,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/simulados/$attemptId/resultado': {
       id: '/_authenticated/simulados/$attemptId/resultado'
-      path: '/resultado'
+      path: '/simulados/$attemptId/resultado'
       fullPath: '/simulados/$attemptId/resultado'
       preLoaderRoute: typeof AuthenticatedSimuladosAttemptIdResultadoRouteImport
-      parentRoute: typeof AuthenticatedSimuladosAttemptIdRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
@@ -597,36 +598,6 @@ const AuthenticatedResumosRouteChildren: AuthenticatedResumosRouteChildren = {
 const AuthenticatedResumosRouteWithChildren =
   AuthenticatedResumosRoute._addFileChildren(AuthenticatedResumosRouteChildren)
 
-interface AuthenticatedSimuladosAttemptIdRouteChildren {
-  AuthenticatedSimuladosAttemptIdResultadoRoute: typeof AuthenticatedSimuladosAttemptIdResultadoRoute
-}
-
-const AuthenticatedSimuladosAttemptIdRouteChildren: AuthenticatedSimuladosAttemptIdRouteChildren =
-  {
-    AuthenticatedSimuladosAttemptIdResultadoRoute:
-      AuthenticatedSimuladosAttemptIdResultadoRoute,
-  }
-
-const AuthenticatedSimuladosAttemptIdRouteWithChildren =
-  AuthenticatedSimuladosAttemptIdRoute._addFileChildren(
-    AuthenticatedSimuladosAttemptIdRouteChildren,
-  )
-
-interface AuthenticatedSimuladosRouteChildren {
-  AuthenticatedSimuladosAttemptIdRoute: typeof AuthenticatedSimuladosAttemptIdRouteWithChildren
-}
-
-const AuthenticatedSimuladosRouteChildren: AuthenticatedSimuladosRouteChildren =
-  {
-    AuthenticatedSimuladosAttemptIdRoute:
-      AuthenticatedSimuladosAttemptIdRouteWithChildren,
-  }
-
-const AuthenticatedSimuladosRouteWithChildren =
-  AuthenticatedSimuladosRoute._addFileChildren(
-    AuthenticatedSimuladosRouteChildren,
-  )
-
 interface AuthenticatedTutorRouteChildren {
   AuthenticatedTutorThreadIdRoute: typeof AuthenticatedTutorThreadIdRoute
   AuthenticatedTutorIndexRoute: typeof AuthenticatedTutorIndexRoute
@@ -654,9 +625,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedRedacaoRoute: typeof AuthenticatedRedacaoRoute
   AuthenticatedResumosRoute: typeof AuthenticatedResumosRouteWithChildren
   AuthenticatedRevisarRoute: typeof AuthenticatedRevisarRoute
-  AuthenticatedSimuladosRoute: typeof AuthenticatedSimuladosRouteWithChildren
   AuthenticatedTutorRoute: typeof AuthenticatedTutorRouteWithChildren
   AuthenticatedVideoaulasRoute: typeof AuthenticatedVideoaulasRoute
+  AuthenticatedSimuladosIndexRoute: typeof AuthenticatedSimuladosIndexRoute
+  AuthenticatedSimuladosAttemptIdResultadoRoute: typeof AuthenticatedSimuladosAttemptIdResultadoRoute
+  AuthenticatedSimuladosAttemptIdIndexRoute: typeof AuthenticatedSimuladosAttemptIdIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -673,9 +646,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedRedacaoRoute: AuthenticatedRedacaoRoute,
   AuthenticatedResumosRoute: AuthenticatedResumosRouteWithChildren,
   AuthenticatedRevisarRoute: AuthenticatedRevisarRoute,
-  AuthenticatedSimuladosRoute: AuthenticatedSimuladosRouteWithChildren,
   AuthenticatedTutorRoute: AuthenticatedTutorRouteWithChildren,
   AuthenticatedVideoaulasRoute: AuthenticatedVideoaulasRoute,
+  AuthenticatedSimuladosIndexRoute: AuthenticatedSimuladosIndexRoute,
+  AuthenticatedSimuladosAttemptIdResultadoRoute:
+    AuthenticatedSimuladosAttemptIdResultadoRoute,
+  AuthenticatedSimuladosAttemptIdIndexRoute:
+    AuthenticatedSimuladosAttemptIdIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
