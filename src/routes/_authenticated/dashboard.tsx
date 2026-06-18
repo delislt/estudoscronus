@@ -80,9 +80,21 @@ function Dashboard() {
   }, [load]);
 
   const complete = useServerFn(completeStudyTask);
+  const uncomplete = useServerFn(uncompleteStudyTask);
 
-  async function completeTask(t: Task) {
-    if (t.completed) return;
+  async function toggleTask(t: Task) {
+    if (t.completed) {
+      setTodayTasks((cur) => cur.map((x) => (x.id === t.id ? { ...x, completed: false } : x)));
+      try {
+        await uncomplete({ data: { taskId: t.id } });
+      } catch (e) {
+        const err = e as Error;
+        setTodayTasks((cur) => cur.map((x) => (x.id === t.id ? { ...x, completed: true } : x)));
+        toast.error("Falha ao desmarcar", { description: err.message });
+      }
+      load();
+      return;
+    }
     setTodayTasks((cur) => cur.map((x) => (x.id === t.id ? { ...x, completed: true } : x)));
     try {
       const res = await complete({ data: { taskId: t.id } });
