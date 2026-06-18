@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { toISODate, levelFromXp } from "@/lib/scheduling";
 import { AppHeader } from "@/components/AppHeader";
-import { completeStudyTask } from "@/lib/progress.functions";
+import { completeStudyTask, uncompleteStudyTask } from "@/lib/progress.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Painel — Study" }] }),
