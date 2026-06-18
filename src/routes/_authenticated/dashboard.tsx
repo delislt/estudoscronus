@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { toISODate, levelFromXp } from "@/lib/scheduling";
 import { AppHeader } from "@/components/AppHeader";
-import { completeStudyTask } from "@/lib/progress.functions";
+import { completeStudyTask, uncompleteStudyTask } from "@/lib/progress.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Painel — Study" }] }),
@@ -80,9 +80,21 @@ function Dashboard() {
   }, [load]);
 
   const complete = useServerFn(completeStudyTask);
+  const uncomplete = useServerFn(uncompleteStudyTask);
 
-  async function completeTask(t: Task) {
-    if (t.completed) return;
+  async function toggleTask(t: Task) {
+    if (t.completed) {
+      setTodayTasks((cur) => cur.map((x) => (x.id === t.id ? { ...x, completed: false } : x)));
+      try {
+        await uncomplete({ data: { taskId: t.id } });
+      } catch (e) {
+        const err = e as Error;
+        setTodayTasks((cur) => cur.map((x) => (x.id === t.id ? { ...x, completed: true } : x)));
+        toast.error("Falha ao desmarcar", { description: err.message });
+      }
+      load();
+      return;
+    }
     setTodayTasks((cur) => cur.map((x) => (x.id === t.id ? { ...x, completed: true } : x)));
     try {
       const res = await complete({ data: { taskId: t.id } });
@@ -148,7 +160,7 @@ function Dashboard() {
               <ul className="mt-5 space-y-2.5">
                 {todayTasks.map((t) => (
                   <li key={t.id} className={`flex items-center justify-between rounded-2xl px-4 py-3 ${t.is_review ? "bg-rose-soft" : "bg-sky-soft"}`}>
-                    <button onClick={() => completeTask(t)} className="flex items-center gap-3 text-left flex-1 min-w-0">
+                    <button onClick={() => toggleTask(t)} className="flex items-center gap-3 text-left flex-1 min-w-0">
                       {t.completed ? (
                         <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
                       ) : (
