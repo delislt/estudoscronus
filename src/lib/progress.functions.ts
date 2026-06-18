@@ -55,8 +55,22 @@ export const completeStudyTask = createServerFn({ method: "POST" })
       .update({ completed: true, completed_at: new Date().toISOString() })
       .eq("id", task.id);
 
+    // Weekly goal bump — always reflect current completed state (RLS-scoped)
+    const { data: weekly } = await supabase
+      .from("goals")
+      .select("id, target_value, current_value")
+      .eq("user_id", userId)
+      .eq("period", "weekly")
+      .maybeSingle();
+    if (weekly) {
+      await supabase
+        .from("goals")
+        .update({ current_value: Math.min(weekly.target_value, weekly.current_value + duration) })
+        .eq("id", weekly.id);
+    }
+
     // If a study session already exists for this task (user previously completed
-    // and then unmarked it), don't award XP/streak/goal again — only re-mark.
+    // and then unmarked it), don't award XP/streak again — only re-mark + goal.
     const { data: existingSession } = await supabase
       .from("study_sessions")
       .select("id")
@@ -102,20 +116,6 @@ export const completeStudyTask = createServerFn({ method: "POST" })
       await supabaseAdmin.from("user_xp").insert({
         user_id: userId, xp: newXp, level, streak_days: streak, last_study_date: today,
       });
-    }
-
-    // Weekly goal bump (RLS-scoped)
-    const { data: weekly } = await supabase
-      .from("goals")
-      .select("id, target_value, current_value")
-      .eq("user_id", userId)
-      .eq("period", "weekly")
-      .maybeSingle();
-    if (weekly) {
-      await supabase
-        .from("goals")
-        .update({ current_value: Math.min(weekly.target_value, weekly.current_value + duration) })
-        .eq("id", weekly.id);
     }
 
     // Achievement check — protected insert, must use admin
