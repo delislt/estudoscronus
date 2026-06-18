@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { ChevronLeft, ChevronRight, Flag, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { AppHeader } from "@/components/AppHeader";
 import { answerQuestion, finishAttempt, getAttempt } from "@/lib/simulados.functions";
 
@@ -16,9 +18,17 @@ type Question = {
   subject: string;
   topic: string | null;
   statement: string;
-  alternatives: Array<{ label: string; text: string }>;
+  alternatives: Array<{ label: string; text: string; file?: string | null }>;
   exam_year: number | null;
 };
+
+const mdComponents = {
+  img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
+    <img {...props} className="my-3 max-w-full h-auto rounded-md border border-border" alt={props.alt ?? ""} />
+  ),
+  p: (props: React.HTMLAttributes<HTMLParagraphElement>) => <p {...props} className="mb-2 last:mb-0" />,
+};
+
 
 function TakeExam() {
   const { attemptId } = Route.useParams();
@@ -114,8 +124,10 @@ function TakeExam() {
         </div>
 
         <article className="rounded-2xl border border-border bg-card p-6 space-y-4">
-          <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap leading-relaxed">
-            {current.statement}
+          <div className="prose prose-sm dark:prose-invert max-w-none leading-relaxed">
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+              {current.statement}
+            </ReactMarkdown>
           </div>
 
           <div className="space-y-2">
@@ -129,13 +141,29 @@ function TakeExam() {
                     selected ? "border-primary bg-primary/5" : "border-border hover:border-primary/60"
                   }`}
                 >
-                  <span className="font-semibold mr-2">{alt.label}.</span>
-                  <span>{alt.text}</span>
+                  <div className="flex gap-2">
+                    <span className="font-semibold">{alt.label}.</span>
+                    <div className="flex-1 prose prose-sm dark:prose-invert max-w-none">
+                      {alt.text ? (
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+                          {alt.text}
+                        </ReactMarkdown>
+                      ) : null}
+                      {alt.file ? (
+                        <img
+                          src={alt.file}
+                          alt={`Alternativa ${alt.label}`}
+                          className="max-w-full h-auto rounded-md border border-border"
+                        />
+                      ) : null}
+                    </div>
+                  </div>
                 </button>
               );
             })}
           </div>
         </article>
+
 
         <div className="flex items-center justify-between gap-3">
           <button
