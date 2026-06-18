@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
 import { listAttempts, startEnemAttempt, deleteAttempt } from "@/lib/simulados.functions";
 
-export const Route = createFileRoute("/_authenticated/simulados")({
+export const Route = createFileRoute("/_authenticated/simulados/")({
   head: () => ({ meta: [{ title: "Simulados — Chronos" }] }),
   component: SimuladosPage,
 });
