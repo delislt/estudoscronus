@@ -171,5 +171,20 @@ export const uncompleteStudyTask = createServerFn({ method: "POST" })
       .update({ completed: false, completed_at: null })
       .eq("id", task.id);
 
+    // Roll back the weekly goal so progress reflects current completed tasks.
+    const duration = Math.max(1, Math.min(480, task.duration_min ?? 0));
+    const { data: weekly } = await supabase
+      .from("goals")
+      .select("id, current_value")
+      .eq("user_id", userId)
+      .eq("period", "weekly")
+      .maybeSingle();
+    if (weekly) {
+      await supabase
+        .from("goals")
+        .update({ current_value: Math.max(0, weekly.current_value - duration) })
+        .eq("id", weekly.id);
+    }
+
     return { ok: true };
   });
