@@ -46,7 +46,11 @@ export function thetaToEnemScore(theta: number) {
 }
 
 // Calcula nota TRI a partir de questões + respostas
+// Regra: sem acertos → nota 0 (ENEM trata "chute em branco" como zero).
 export function calculateTriEnem(items: TriItem[]) {
+  if (items.length === 0) return 0;
+  const correct = items.filter((i) => i.correct).length;
+  if (correct === 0) return 0;
   const theta = estimateTheta(items);
   return thetaToEnemScore(theta);
 }
