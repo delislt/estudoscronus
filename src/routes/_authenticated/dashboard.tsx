@@ -92,13 +92,15 @@ function Dashboard() {
         setTodayTasks((cur) => cur.map((x) => (x.id === t.id ? { ...x, completed: true } : x)));
         toast.error("Falha ao desmarcar", { description: err.message });
       }
-      load();
       return;
     }
     setTodayTasks((cur) => cur.map((x) => (x.id === t.id ? { ...x, completed: true } : x)));
     try {
       const res = await complete({ data: { taskId: t.id } });
-      if (res.gainedXp > 0) toast.success(`+${res.gainedXp} XP 🎉`);
+      if (res.gainedXp > 0) {
+        toast.success(`+${res.gainedXp} XP 🎉`);
+        setXp((cur) => cur ? { ...cur, xp: cur.xp + res.gainedXp, level: levelFromXp(cur.xp + res.gainedXp).level } : cur);
+      }
       for (const a of res.newlyUnlocked) {
         toast.success(`Conquista desbloqueada: ${a.title} 🏆`, { description: a.description });
       }
@@ -107,7 +109,6 @@ function Dashboard() {
       setTodayTasks((cur) => cur.map((x) => (x.id === t.id ? { ...x, completed: false } : x)));
       toast.error("Falha ao concluir", { description: err.message });
     }
-    load();
   }
 
 
