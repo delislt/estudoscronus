@@ -160,7 +160,7 @@ function Dashboard() {
               <ul className="mt-5 space-y-2.5">
                 {todayTasks.map((t) => (
                   <li key={t.id} className={`flex items-center justify-between rounded-2xl px-4 py-3 ${t.is_review ? "bg-rose-soft" : "bg-sky-soft"}`}>
-                    <button onClick={() => completeTask(t)} className="flex items-center gap-3 text-left flex-1 min-w-0">
+                    <button onClick={() => toggleTask(t)} className="flex items-center gap-3 text-left flex-1 min-w-0">
                       {t.completed ? (
                         <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
                       ) : (
