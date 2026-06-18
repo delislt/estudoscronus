@@ -129,3 +129,55 @@ export const completeStudyTask = createServerFn({ method: "POST" })
 
     return { gainedXp, newlyUnlocked: newly };
   });
+
+/**
+ * Reverts a previously completed study task: unmarks it, removes the related
+ * study_session, and subtracts the XP previously awarded.
+ */
+export const uncompleteStudyTask = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ taskId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: task, error: taskErr } = await supabase
+      .from("schedule_tasks")
+      .select("id, user_id, duration_min, completed")
+      .eq("id", data.taskId)
+      .maybeSingle();
+    if (taskErr) throw new Error(taskErr.message);
+    if (!task) throw new Error("Task not found");
+    if (task.user_id !== userId) throw new Error("Forbidden");
+    if (!task.completed) return { ok: true };
+
+    const duration = Math.max(1, Math.min(480, task.duration_min ?? 0));
+
+    await supabase
+      .from("schedule_tasks")
+      .update({ completed: false, completed_at: null })
+      .eq("id", task.id);
+
+    await supabase
+      .from("study_sessions")
+      .delete()
+      .eq("user_id", userId)
+      .eq("task_id", task.id);
+
+    const lostXp = xpForMinutes(duration);
+    const { data: xpRow } = await supabaseAdmin
+      .from("user_xp")
+      .select("xp")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (xpRow) {
+      const newXp = Math.max(0, (xpRow.xp ?? 0) - lostXp);
+      const { level } = levelFromXp(newXp);
+      await supabaseAdmin
+        .from("user_xp")
+        .update({ xp: newXp, level })
+        .eq("user_id", userId);
+    }
+
+    return { ok: true };
+  });
