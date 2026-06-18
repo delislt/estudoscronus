@@ -55,6 +55,18 @@ export const completeStudyTask = createServerFn({ method: "POST" })
       .update({ completed: true, completed_at: new Date().toISOString() })
       .eq("id", task.id);
 
+    // If a study session already exists for this task (user previously completed
+    // and then unmarked it), don't award XP/streak/goal again — only re-mark.
+    const { data: existingSession } = await supabase
+      .from("study_sessions")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("task_id", task.id)
+      .maybeSingle();
+    if (existingSession) {
+      return { gainedXp: 0, newlyUnlocked: [] as Achievement[] };
+    }
+
     // Insert study session (RLS-scoped)
     await supabase.from("study_sessions").insert({
       user_id: userId,
