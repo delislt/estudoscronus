@@ -120,14 +120,55 @@ export const getAttempt = createServerFn({ method: "POST" })
       .single();
     if (error || !attempt) throw new Error("Simulado não encontrado");
 
-    const { data: questions } = await supabase
+    let { data: questions } = await supabase
       .from("questions")
-      .select("id, subject, topic, statement, alternatives, correct_label, exam_year")
+      .select("id, subject, topic, statement, alternatives, correct_label, exam_year, external_id, source")
       .in("id", attempt.question_ids);
+
+    // Auto-heal: questões importadas em formato antigo (sem `file` nas alternativas)
+    // são re-buscadas no enem.dev para incluir imagens.
+    const needsRefresh = (questions ?? []).filter((q) => {
+      if (q.source !== "enem" || !q.external_id) return false;
+      const alts = (q.alternatives as Array<{ text?: string | null; file?: string | null }>) ?? [];
+      // Se alguma alternativa não tem `file` definido (chave ausente), o registro está no formato antigo
+      const hasFileKey = alts.some((a) => "file" in a);
+      const hasBlank = alts.some((a) => !a.text && !a.file);
+      return !hasFileKey || hasBlank;
+    });
+
+    if (needsRefresh.length > 0) {
+      const { fetchEnemQuestion, enemQuestionToRow } = await import("@/lib/enem-import.server");
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const refreshed = await Promise.all(
+        needsRefresh.map(async (q) => {
+          // external_id formato: enem:{year}:{index}:{lang}
+          const parts = (q.external_id as string).split(":");
+          const year = Number(parts[1]);
+          const index = Number(parts[2]);
+          const lang = parts[3] && parts[3] !== "pt" ? parts[3] : undefined;
+          const fetched = await fetchEnemQuestion(year, index, lang).catch(() => null);
+          if (!fetched) return null;
+          const row = enemQuestionToRow(fetched);
+          await supabaseAdmin
+            .from("questions")
+            .update({ alternatives: row.alternatives, statement: row.statement })
+            .eq("id", q.id);
+          return q.id;
+        }),
+      );
+      if (refreshed.some(Boolean)) {
+        const reload = await supabase
+          .from("questions")
+          .select("id, subject, topic, statement, alternatives, correct_label, exam_year, external_id, source")
+          .in("id", attempt.question_ids);
+        questions = reload.data ?? questions;
+      }
+    }
 
     // Ordena na sequência original
     const byId = new Map((questions ?? []).map((q) => [q.id, q]));
     const ordered = attempt.question_ids.map((id: string) => byId.get(id)).filter(Boolean);
+
 
     const { data: answers } = await supabase
       .from("exam_answers")

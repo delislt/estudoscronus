@@ -35,7 +35,7 @@ async function fetchExamIndex(year: number): Promise<ExamIndexEntry[]> {
   return json.questions ?? [];
 }
 
-async function fetchEnemQuestion(year: number, index: number, language?: string): Promise<EnemQuestion | null> {
+export async function fetchEnemQuestion(year: number, index: number, language?: string): Promise<EnemQuestion | null> {
   const url = new URL(`https://api.enem.dev/v1/exams/${year}/questions/${index}`);
   if (language) url.searchParams.set("language", language);
   const res = await fetch(url.toString());
