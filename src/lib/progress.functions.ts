@@ -55,6 +55,18 @@ export const completeStudyTask = createServerFn({ method: "POST" })
       .update({ completed: true, completed_at: new Date().toISOString() })
       .eq("id", task.id);
 
+    // If a study session already exists for this task (user previously completed
+    // and then unmarked it), don't award XP/streak/goal again — only re-mark.
+    const { data: existingSession } = await supabase
+      .from("study_sessions")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("task_id", task.id)
+      .maybeSingle();
+    if (existingSession) {
+      return { gainedXp: 0, newlyUnlocked: [] as Achievement[] };
+    }
+
     // Insert study session (RLS-scoped)
     await supabase.from("study_sessions").insert({
       user_id: userId,
@@ -151,33 +163,13 @@ export const uncompleteStudyTask = createServerFn({ method: "POST" })
     if (task.user_id !== userId) throw new Error("Forbidden");
     if (!task.completed) return { ok: true };
 
-    const duration = Math.max(1, Math.min(480, task.duration_min ?? 0));
-
+    // Only unmark the task. Keep the study_session and XP intact so the user
+    // cannot farm XP by toggling complete/uncomplete. Re-completing won't
+    // award XP again because completeStudyTask detects the existing session.
     await supabase
       .from("schedule_tasks")
       .update({ completed: false, completed_at: null })
       .eq("id", task.id);
-
-    await supabase
-      .from("study_sessions")
-      .delete()
-      .eq("user_id", userId)
-      .eq("task_id", task.id);
-
-    const lostXp = xpForMinutes(duration);
-    const { data: xpRow } = await supabaseAdmin
-      .from("user_xp")
-      .select("xp")
-      .eq("user_id", userId)
-      .maybeSingle();
-    if (xpRow) {
-      const newXp = Math.max(0, (xpRow.xp ?? 0) - lostXp);
-      const { level } = levelFromXp(newXp);
-      await supabaseAdmin
-        .from("user_xp")
-        .update({ xp: newXp, level })
-        .eq("user_id", userId);
-    }
 
     return { ok: true };
   });
