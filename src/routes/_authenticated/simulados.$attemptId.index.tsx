@@ -124,8 +124,10 @@ function TakeExam() {
         </div>
 
         <article className="rounded-2xl border border-border bg-card p-6 space-y-4">
-          <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap leading-relaxed">
-            {current.statement}
+          <div className="prose prose-sm dark:prose-invert max-w-none leading-relaxed">
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+              {current.statement}
+            </ReactMarkdown>
           </div>
 
           <div className="space-y-2">
@@ -139,13 +141,29 @@ function TakeExam() {
                     selected ? "border-primary bg-primary/5" : "border-border hover:border-primary/60"
                   }`}
                 >
-                  <span className="font-semibold mr-2">{alt.label}.</span>
-                  <span>{alt.text}</span>
+                  <div className="flex gap-2">
+                    <span className="font-semibold">{alt.label}.</span>
+                    <div className="flex-1 prose prose-sm dark:prose-invert max-w-none">
+                      {alt.text ? (
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+                          {alt.text}
+                        </ReactMarkdown>
+                      ) : null}
+                      {alt.file ? (
+                        <img
+                          src={alt.file}
+                          alt={`Alternativa ${alt.label}`}
+                          className="max-w-full h-auto rounded-md border border-border"
+                        />
+                      ) : null}
+                    </div>
+                  </div>
                 </button>
               );
             })}
           </div>
         </article>
+
 
         <div className="flex items-center justify-between gap-3">
           <button
