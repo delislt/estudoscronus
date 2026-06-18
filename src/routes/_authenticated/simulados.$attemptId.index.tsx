@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { ChevronLeft, ChevronRight, Flag, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { AppHeader } from "@/components/AppHeader";
 import { answerQuestion, finishAttempt, getAttempt } from "@/lib/simulados.functions";
 
@@ -16,9 +18,17 @@ type Question = {
   subject: string;
   topic: string | null;
   statement: string;
-  alternatives: Array<{ label: string; text: string }>;
+  alternatives: Array<{ label: string; text: string; file?: string | null }>;
   exam_year: number | null;
 };
+
+const mdComponents = {
+  img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
+    <img {...props} className="my-3 max-w-full h-auto rounded-md border border-border" alt={props.alt ?? ""} />
+  ),
+  p: (props: React.HTMLAttributes<HTMLParagraphElement>) => <p {...props} className="mb-2 last:mb-0" />,
+};
+
 
 function TakeExam() {
   const { attemptId } = Route.useParams();
