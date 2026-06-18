@@ -82,19 +82,36 @@ function Dashboard() {
   const complete = useServerFn(completeStudyTask);
   const uncomplete = useServerFn(uncompleteStudyTask);
 
+  function bumpWeeklyGoal(delta: number) {
+    setGoals((cur) =>
+      cur.map((g) =>
+        g.period === "weekly"
+          ? {
+              ...g,
+              current_value: Math.max(0, Math.min(g.target_value, g.current_value + delta)),
+            }
+          : g,
+      ),
+    );
+  }
+
   async function toggleTask(t: Task) {
+    const duration = t.duration_min ?? 0;
     if (t.completed) {
       setTodayTasks((cur) => cur.map((x) => (x.id === t.id ? { ...x, completed: false } : x)));
+      bumpWeeklyGoal(-duration);
       try {
         await uncomplete({ data: { taskId: t.id } });
       } catch (e) {
         const err = e as Error;
         setTodayTasks((cur) => cur.map((x) => (x.id === t.id ? { ...x, completed: true } : x)));
+        bumpWeeklyGoal(duration);
         toast.error("Falha ao desmarcar", { description: err.message });
       }
       return;
     }
     setTodayTasks((cur) => cur.map((x) => (x.id === t.id ? { ...x, completed: true } : x)));
+    bumpWeeklyGoal(duration);
     try {
       const res = await complete({ data: { taskId: t.id } });
       if (res.gainedXp > 0) {
@@ -107,6 +124,7 @@ function Dashboard() {
     } catch (e) {
       const err = e as Error;
       setTodayTasks((cur) => cur.map((x) => (x.id === t.id ? { ...x, completed: false } : x)));
+      bumpWeeklyGoal(-duration);
       toast.error("Falha ao concluir", { description: err.message });
     }
   }
