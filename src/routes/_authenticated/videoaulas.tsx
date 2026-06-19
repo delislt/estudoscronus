@@ -437,6 +437,18 @@ function VideoaulasPage() {
           </div>
         )}
       </main>
+      {player && (
+        <VideoPlayerModal
+          videoId={player.videoId}
+          title={player.title}
+          onClose={() => setPlayer(null)}
+          onEnded={() => {
+            const r = player.rec;
+            setPlayer(null);
+            if (r.source === "db" && !r.completed) patch(r, { completed: true });
+          }}
+        />
+      )}
     </div>
   );
 }
