@@ -491,7 +491,7 @@ function VideoPlayerModal({
   videoId, title, onClose, onEnded,
 }: { videoId: string; title: string; onClose: () => void; onEnded: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<YT.Player | null>(null);
+  const playerRef = useRef<YTPlayer | null>(null);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
