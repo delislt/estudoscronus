@@ -529,7 +529,7 @@ function VideoPlayerModal({
           origin: window.location.origin,
         },
         events: {
-          onStateChange: (event: YT.OnStateChangeEvent) => {
+          onStateChange: (event: { data: number; target: YTPlayer }) => {
             if (event.data === window.YT?.PlayerState?.ENDED) {
               onEnded();
             }
