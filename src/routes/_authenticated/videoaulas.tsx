@@ -5,7 +5,36 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
 import { generateVideoRecommendations } from "@/lib/video-recs.functions";
 import { resolveYoutubeVideo } from "@/lib/youtube.functions";
-import { Heart, CheckCircle2, ExternalLink, Filter, Sparkles, Loader2, Play as YoutubeIcon } from "lucide-react";
+import {
+  Heart, CheckCircle2, ExternalLink, Filter, Sparkles, Loader2, Play as YoutubeIcon,
+  Calculator, Atom, FlaskConical, Leaf, Globe2, Landmark, Users, Brain,
+  BookOpen, Feather, PenLine, LayoutGrid, type LucideIcon,
+} from "lucide-react";
+
+const SUBJECT_ICONS: Record<string, LucideIcon> = {
+  "matemática": Calculator,
+  "matematica": Calculator,
+  "física": Atom,
+  "fisica": Atom,
+  "química": FlaskConical,
+  "quimica": FlaskConical,
+  "biologia": Leaf,
+  "geografia": Globe2,
+  "história": Landmark,
+  "historia": Landmark,
+  "sociologia": Users,
+  "filosofia": Brain,
+  "português": BookOpen,
+  "portugues": BookOpen,
+  "literatura": Feather,
+  "redação": PenLine,
+  "redacao": PenLine,
+};
+
+function iconForSubject(s: string): LucideIcon {
+  if (s === "todas") return LayoutGrid;
+  return SUBJECT_ICONS[s.toLowerCase().trim()] ?? BookOpen;
+}
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/videoaulas")({
