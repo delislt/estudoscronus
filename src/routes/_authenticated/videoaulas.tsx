@@ -190,15 +190,20 @@ function VideoaulasPage() {
             <div className="inline-flex items-center gap-1.5 text-sm text-muted-foreground mr-1">
               <Filter className="h-4 w-4" /> Matéria:
             </div>
-            {subjects.map((s) => (
-              <button
-                key={s}
-                onClick={() => setSubject(s)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium border ${subject === s ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border/60 hover:bg-muted"}`}
-              >
-                {s === "todas" ? "Todas" : s}
-              </button>
-            ))}
+            {subjects.map((s) => {
+              const Icon = iconForSubject(s);
+              return (
+                <button
+                  key={s}
+                  onClick={() => setSubject(s)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border ${subject === s ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border/60 hover:bg-muted"}`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {s === "todas" ? "Todas" : s}
+                </button>
+              );
+            })}
+
             <span className="mx-2 h-5 w-px bg-border" />
             {(["todas", "favoritas", "concluidas"] as Filter[]).map((f) => (
               <button
