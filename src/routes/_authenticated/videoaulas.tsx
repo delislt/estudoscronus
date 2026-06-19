@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
@@ -12,6 +12,40 @@ import {
   BookOpen, Feather, PenLine, LayoutGrid, Tag, X, type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+
+declare global {
+  interface Window {
+    YT?: {
+      Player: new (
+        element: HTMLElement | string,
+        options: {
+          videoId?: string;
+          playerVars?: Record<string, number | string>;
+          events?: {
+            onReady?: (event: { target: YTPlayer }) => void;
+            onStateChange?: (event: { data: number; target: YTPlayer }) => void;
+          };
+        }
+      ) => YTPlayer;
+      PlayerState?: {
+        ENDED: number;
+        PLAYING: number;
+        PAUSED: number;
+        BUFFERING: number;
+        CUED: number;
+      };
+    };
+    onYouTubeIframeAPIReady?: () => void;
+  }
+}
+
+interface YTPlayer {
+  destroy: () => void;
+  playVideo: () => void;
+  pauseVideo: () => void;
+  stopVideo: () => void;
+  getPlayerState: () => number;
+}
 
 const SUBJECT_ICONS: Record<string, LucideIcon> = {
   "matemática": Calculator, "matematica": Calculator,
