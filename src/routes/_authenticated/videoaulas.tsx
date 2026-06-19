@@ -138,7 +138,7 @@ function VideoaulasPage() {
   }
 
   const subjects = useMemo(
-    () => ["todas", ...Array.from(new Set(recs.map((r) => r.subject)))],
+    () => ["todas", ...Array.from(new Set(recs.map((r) => r.subject))).sort((a, b) => a.localeCompare(b, "pt-BR"))],
     [recs],
   );
 
