@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
@@ -12,6 +12,40 @@ import {
   BookOpen, Feather, PenLine, LayoutGrid, Tag, X, type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+
+declare global {
+  interface Window {
+    YT?: {
+      Player: new (
+        element: HTMLElement | string,
+        options: {
+          videoId?: string;
+          playerVars?: Record<string, number | string>;
+          events?: {
+            onReady?: (event: { target: YTPlayer }) => void;
+            onStateChange?: (event: { data: number; target: YTPlayer }) => void;
+          };
+        }
+      ) => YTPlayer;
+      PlayerState?: {
+        ENDED: number;
+        PLAYING: number;
+        PAUSED: number;
+        BUFFERING: number;
+        CUED: number;
+      };
+    };
+    onYouTubeIframeAPIReady?: () => void;
+  }
+}
+
+interface YTPlayer {
+  destroy: () => void;
+  playVideo: () => void;
+  pauseVideo: () => void;
+  stopVideo: () => void;
+  getPlayerState: () => number;
+}
 
 const SUBJECT_ICONS: Record<string, LucideIcon> = {
   "matemática": Calculator, "matematica": Calculator,
@@ -456,28 +490,68 @@ function VideoaulasPage() {
 function VideoPlayerModal({
   videoId, title, onClose, onEnded,
 }: { videoId: string; title: string; onClose: () => void; onEnded: () => void }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<YTPlayer | null>(null);
+
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    const handleMessage = (e: MessageEvent) => {
-      if (typeof e.data !== "string") return;
-      try {
-        const data = JSON.parse(e.data) as { event?: string; info?: number };
-        // YT state 0 = ended
-        if (data.event === "onStateChange" && data.info === 0) onEnded();
-      } catch { /* not a YT message */ }
-    };
-    window.addEventListener("keydown", handleKey);
-    window.addEventListener("message", handleMessage);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
-      window.removeEventListener("keydown", handleKey);
-      window.removeEventListener("message", handleMessage);
       document.body.style.overflow = prev;
     };
-  }, [onClose, onEnded]);
+  }, []);
 
-  const src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handleKey);
+    return () => { window.removeEventListener("keydown", handleKey); };
+  }, [onClose]);
+
+  useEffect(() => {
+    const loadApi = () => {
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      document.body.appendChild(tag);
+    };
+
+    if (!window.YT || !window.YT.Player) {
+      loadApi();
+    }
+
+    const initPlayer = () => {
+      if (!containerRef.current || !window.YT?.Player) return;
+      playerRef.current = new window.YT.Player(containerRef.current, {
+        videoId,
+        playerVars: {
+          autoplay: 1,
+          rel: 0,
+          modestbranding: 1,
+          origin: window.location.origin,
+        },
+        events: {
+          onStateChange: (event: { data: number; target: YTPlayer }) => {
+            if (event.data === window.YT?.PlayerState?.ENDED) {
+              onEnded();
+            }
+          },
+        },
+      });
+    };
+
+    const checkReady = () => {
+      if (window.YT?.Player && window.YT?.PlayerState) {
+        initPlayer();
+      } else {
+        setTimeout(checkReady, 300);
+      }
+    };
+    checkReady();
+
+    return () => {
+      try { playerRef.current?.destroy(); } catch { /* noop */ }
+      playerRef.current = null;
+    };
+  }, [videoId, onEnded]);
 
   return (
     <div
@@ -499,14 +573,7 @@ function VideoPlayerModal({
           <X className="h-5 w-5" />
         </button>
         <div className="aspect-video w-full">
-          <iframe
-            src={src}
-            title={title}
-            className="h-full w-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-            referrerPolicy="strict-origin-when-cross-origin"
-          />
+          <div ref={containerRef} className="h-full w-full" />
         </div>
         <div className="flex items-center justify-between gap-3 p-3 bg-card">
           <p className="text-sm font-medium line-clamp-1">{title}</p>
