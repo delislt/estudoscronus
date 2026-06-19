@@ -105,8 +105,12 @@ function VideoaulasPage() {
 
   const all = useMemo<Rec[]>(() => [...recs, ...catalogRecs], [recs, catalogRecs]);
 
+  function openPlayer(videoId: string, title: string, rec: Rec) {
+    setPlayer({ videoId, title, rec });
+  }
+
   async function handleWatch(v: Rec) {
-    if (v.video_id) { openYoutube(v.video_id); return; }
+    if (v.video_id) { openPlayer(v.video_id, v.resolved_title ?? v.title, v); return; }
     setResolving(v.id);
     try {
       const res = await resolve({ data: { query: v.search_query, channel: v.channel_hint } });
@@ -117,15 +121,17 @@ function VideoaulasPage() {
             .update({ video_id: res.videoId, resolved_title: res.title ?? null })
             .eq("id", v.id);
         }
-        setRecs((prev) => prev.map((x) => (x.id === v.id ? { ...x, video_id: res.videoId, resolved_title: res.title ?? null } : x)));
-        openYoutube(res.videoId);
+        const updated = { ...v, video_id: res.videoId, resolved_title: res.title ?? null };
+        setRecs((prev) => prev.map((x) => (x.id === v.id ? updated : x)));
+        openPlayer(res.videoId, res.title ?? v.title, updated);
       } else {
         const q = v.channel_hint ? `${v.search_query} ${v.channel_hint}` : v.search_query;
-        openSearch(q);
+        window.open(youtubeSearchUrl(q), "_blank", "noopener,noreferrer");
+        toast.info("Não encontrei o vídeo exato — abri a busca no YouTube.");
       }
     } catch {
       const q = v.channel_hint ? `${v.search_query} ${v.channel_hint}` : v.search_query;
-      openSearch(q);
+      window.open(youtubeSearchUrl(q), "_blank", "noopener,noreferrer");
     } finally {
       setResolving(null);
     }
