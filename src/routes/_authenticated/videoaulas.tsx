@@ -78,6 +78,7 @@ function VideoaulasPage() {
   const [topic, setTopic] = useState<string>("todos");
   const [filter, setFilter] = useState<Filter>("todas");
   const [resolving, setResolving] = useState<string | null>(null);
+  const [player, setPlayer] = useState<{ videoId: string; title: string; rec: Rec } | null>(null);
 
   // Catalog items as virtual recs (always available)
   const catalogRecs = useMemo<Rec[]>(
