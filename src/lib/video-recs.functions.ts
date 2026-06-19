@@ -77,14 +77,28 @@ Perfil do aluno:
 Matérias (priorize as de maior dificuldade):
 ${subjectList}
 
+CANAIS PERMITIDOS (use SOMENTE estes canais, escolhendo o canal pela matéria):
+- Matemática: "Professor Ferretto", "Matemática Rio com Prof. Rafael Procopio", "Sandro Curió"
+- Física: "Física Total", "Professor Boaro"
+- Química: "Marcelão da Química", "Café com Química", "Monstrão da Química"
+- Biologia: "Biologia Total com Prof. Jubilut", "Guilherme Goulart", "Samuel Cunha"
+- História: "Parabólica", "Débora Aladim"
+- Geografia: "Parabólica", "Débora Aladim"
+- Filosofia: "Parabólica", "Débora Aladim"
+- Sociologia: "Parabólica", "Débora Aladim"
+- Português: "Professor Noslen", "Luma e Ponto", "Profinho"
+- Literatura: "Professor Noslen", "Luma e Ponto", "Profinho"
+- Redação: "Professor Noslen", "Luma e Ponto", "Profinho"
+
 Regras importantes:
-1. Sugira buscas no YouTube em **português brasileiro** que retornem aulas de canais brasileiros conhecidos (Khan Academy Brasil, Curso Enem Gratuito, Professor Ferretto, Stoodi, Equaciona Matemática, Me Salva!, Descomplica, Biologia Total, Quimica em Ação, Débora Aladim, Noslen, Português com Letícia, etc.).
+1. \`channel_hint\` deve ser EXATAMENTE um dos canais listados acima para a matéria. NÃO invente, NÃO use canais fora dessa lista (nada de Khan Academy, Me Salva!, Descomplica, Stoodi, etc.).
 2. NUNCA recomende canais em inglês.
-3. Cada \`search_query\` precisa ser específica (matéria + tópico exato), não genérica. Ex: "função quadrática vértice bhaskara aula" — não apenas "matemática".
-4. Distribua entre as matérias do aluno, dando mais peso para as de maior dificuldade.
+3. Cada \`search_query\` precisa ser específica (matéria + tópico exato + nome do canal). Ex: "função quadrática vértice bhaskara Professor Ferretto" — não apenas "matemática".
+4. Distribua entre as matérias do aluno, dando mais peso para as de maior dificuldade. Varie os canais permitidos dentro de cada matéria.
 5. Misture introdução, aprofundamento e revisão.
 6. Para cada item, preencha TODOS os campos: title, subject, level ("fundamental" | "medio" | "superior"), description, reason, search_query, channel_hint, duration_hint (ex: "10-15 min").
 7. Responda APENAS com JSON válido, sem markdown, no formato: {"recommendations": [ { "title": "...", "subject": "...", "level": "medio", "description": "...", "reason": "...", "search_query": "...", "channel_hint": "...", "duration_hint": "..." } ] }`;
+
 
     const { text } = await generateText({ model, prompt });
     const parsed = extractJSON(text);
