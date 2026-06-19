@@ -452,3 +452,74 @@ function VideoaulasPage() {
     </div>
   );
 }
+
+function VideoPlayerModal({
+  videoId, title, onClose, onEnded,
+}: { videoId: string; title: string; onClose: () => void; onEnded: () => void }) {
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const handleMessage = (e: MessageEvent) => {
+      if (typeof e.data !== "string") return;
+      try {
+        const data = JSON.parse(e.data) as { event?: string; info?: number };
+        // YT state 0 = ended
+        if (data.event === "onStateChange" && data.info === 0) onEnded();
+      } catch { /* not a YT message */ }
+    };
+    window.addEventListener("keydown", handleKey);
+    window.addEventListener("message", handleMessage);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", handleKey);
+      window.removeEventListener("message", handleMessage);
+      document.body.style.overflow = prev;
+    };
+  }, [onClose, onEnded]);
+
+  const src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+      className="fixed inset-0 z-[100] grid place-items-center bg-black/80 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-5xl rounded-2xl overflow-hidden bg-black shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          aria-label="Fechar"
+          className="absolute -top-3 -right-3 z-10 h-10 w-10 rounded-full bg-white text-foreground grid place-items-center shadow-lg hover:scale-105 transition"
+        >
+          <X className="h-5 w-5" />
+        </button>
+        <div className="aspect-video w-full">
+          <iframe
+            src={src}
+            title={title}
+            className="h-full w-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        </div>
+        <div className="flex items-center justify-between gap-3 p-3 bg-card">
+          <p className="text-sm font-medium line-clamp-1">{title}</p>
+          <a
+            href={`https://www.youtube.com/watch?v=${videoId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
+          >
+            <ExternalLink className="h-3.5 w-3.5" /> Abrir no YouTube
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
