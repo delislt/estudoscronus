@@ -9,7 +9,7 @@ import { VIDEO_CATALOG } from "@/data/video-catalog";
 import {
   Heart, CheckCircle2, ExternalLink, Filter, Sparkles, Loader2, Play as YoutubeIcon,
   Calculator, Atom, FlaskConical, Leaf, Globe2, Landmark, Users, Brain,
-  BookOpen, Feather, PenLine, LayoutGrid, Tag, type LucideIcon,
+  BookOpen, Feather, PenLine, LayoutGrid, Tag, X, type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
