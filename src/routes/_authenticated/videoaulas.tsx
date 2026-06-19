@@ -64,13 +64,8 @@ type Rec = {
 
 type Filter = "todas" | "favoritas" | "concluidas";
 
-function openYoutube(videoId: string) {
-  const w = window.open(`https://www.youtube.com/watch?v=${videoId}`, "_blank", "noopener,noreferrer");
-  if (!w) window.location.href = `https://www.youtube.com/watch?v=${videoId}`;
-}
-
-function openSearch(q: string) {
-  window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`, "_blank", "noopener,noreferrer");
+function youtubeSearchUrl(q: string) {
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
 }
 
 function VideoaulasPage() {
